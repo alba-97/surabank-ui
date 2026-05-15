@@ -1,11 +1,12 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { login } from '@/services/api';
 import { saveSession, isAuthenticated } from '@/services/auth';
-import { playTap, playSuccess, playError } from '@/services/sounds';
+import { playTap, playError } from '@/services/sounds';
 import Spinner from '@/components/Spinner';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -33,7 +34,6 @@ export default function LoginPage() {
       const res = await login(email, password);
       if (res.success) {
         saveSession(res.data.token, res.data.name, remember);
-        playSuccess();
         router.push('/home');
         return;
       }
@@ -50,13 +50,13 @@ export default function LoginPage() {
     setLoading(false);
   };
 
-  if (loading) return <Spinner />
+  if (loading) return <Spinner />;
 
   return (
-    <div className="mobile-container flex flex-col min-h-screen bg-[#f9fafc] dark:bg-[#111827]">
+    <div className="mobile-container flex flex-col min-h-screen bg-page">
       <ThemeToggle />
-      <div className="absolute top-0 right-0 w-48 h-48 bg-[#005cee]/5 rounded-full -translate-y-16 translate-x-16 pointer-events-none" />
-      <div className="absolute top-32 left-0 w-32 h-32 bg-[#005cee]/3 rounded-full -translate-x-16 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -translate-y-16 translate-x-16 pointer-events-none" />
+      <div className="absolute top-32 left-0 w-32 h-32 bg-primary/[0.03] rounded-full -translate-x-16 pointer-events-none" />
 
       <div className="flex-1 flex flex-col px-6 pt-16 pb-8">
         <motion.div
@@ -66,7 +66,7 @@ export default function LoginPage() {
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
           <motion.h1
-            className="text-[40px] font-semibold text-[#005cee] tracking-tight leading-none mb-3"
+            className="text-[40px] font-semibold text-primary tracking-tight leading-none mb-3"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -74,7 +74,7 @@ export default function LoginPage() {
             Surabank
           </motion.h1>
           <motion.p
-            className="text-[#717e95] dark:text-[#9ca3af] text-base"
+            className="text-fg-2 text-base"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -93,9 +93,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="flex flex-col gap-2">
-            <label className="text-[#334154] dark:text-[#f3f4f6] font-medium text-base">
-              Email
-            </label>
+            <label className="text-fg font-medium text-base">Email</label>
             <motion.div whileTap={{ scale: 0.99 }}>
               <input
                 type="email"
@@ -103,15 +101,13 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Ingresa tu email"
                 required
-                className="w-full bg-white dark:bg-[#1f2937] rounded-xl px-4 py-4 text-sm text-[#334154] dark:text-[#f3f4f6] placeholder-[#aaa] dark:placeholder-[#6b7280] outline-none border-2 border-transparent dark:border-[#374151] focus:border-[#005cee] transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
+                className="w-full bg-surface rounded-xl px-4 py-4 text-sm text-fg placeholder-fg-3 outline-none border-2 border-field-border focus:border-primary transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
               />
             </motion.div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[#334154] dark:text-[#f3f4f6] font-medium text-base">
-              Contraseña
-            </label>
+            <label className="text-fg font-medium text-base">Contraseña</label>
             <motion.div className="relative" whileTap={{ scale: 0.99 }}>
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -119,50 +115,24 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Ingresa tu contraseña"
                 required
-                className="w-full bg-white dark:bg-[#1f2937] rounded-xl px-4 py-4 pr-12 text-sm text-[#334154] dark:text-[#f3f4f6] placeholder-[#aaa] dark:placeholder-[#6b7280] outline-none border-2 border-transparent dark:border-[#374151] focus:border-[#005cee] transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
+                className="w-full bg-surface rounded-xl px-4 py-4 pr-12 text-sm text-fg placeholder-fg-3 outline-none border-2 border-field-border focus:border-primary transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#005cee] transition-colors p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 opacity-40 hover:opacity-80 transition-opacity"
               >
-                {showPassword ? (
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                )}
+                <Image
+                  src={
+                    showPassword ? '/icons/eye-hide.svg' : '/icons/eye-show.svg'
+                  }
+                  width={20}
+                  height={20}
+                  alt={
+                    showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                  }
+                  className="dark:invert"
+                />
               </button>
             </motion.div>
           </div>
@@ -178,8 +148,8 @@ export default function LoginPage() {
             <div
               className={`w-[18px] h-[18px] rounded-sm border-2 flex items-center justify-center transition-all duration-200 ${
                 remember
-                  ? 'bg-[#005cee] border-[#005cee]'
-                  : 'bg-white border-[#ccc] dark:bg-[#1f2937] dark:border-[#374151]'
+                  ? 'bg-primary border-primary'
+                  : 'bg-surface border-[#ccc] dark:border-divider-2'
               }`}
             >
               <AnimatePresence>
@@ -204,7 +174,7 @@ export default function LoginPage() {
                 )}
               </AnimatePresence>
             </div>
-            <span className="text-[#aaa] dark:text-[#6b7280] text-sm">Recordarme</span>
+            <span className="text-fg-3 text-sm">Recordarme</span>
           </motion.label>
 
           <AnimatePresence>
@@ -226,7 +196,7 @@ export default function LoginPage() {
         <motion.button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 shadow-[0_8px_30px_0_rgba(0,92,238,0.3)] disabled:opacity-70 transition-all duration-200 cursor-pointer"
+          className="w-full bg-primary text-white font-semibold text-base rounded-2xl py-4 shadow-[0_8px_30px_0_rgba(0,92,238,0.3)] disabled:opacity-70 transition-all duration-200 cursor-pointer"
           whileTap={{ scale: 0.97 }}
           whileHover={{
             scale: 1.01,

@@ -18,10 +18,19 @@ jest.mock('@/services/sounds', () => ({
   playError: jest.fn(),
 }));
 
-const { getContacts, getCards, transferMoney } = jest.requireMock('@/services/api');
+const { getContacts, getCards, transferMoney } =
+  jest.requireMock('@/services/api');
 
 const mockCards = [
-  { id: 1, issuer: 'Visa', name: 'Carlos', expDate: '02/30', lastDigits: 1234, balance: '500.00', currency: 'USD' },
+  {
+    id: 1,
+    issuer: 'Visa',
+    name: 'Carlos',
+    expDate: '02/30',
+    lastDigits: 1234,
+    balance: '500.00',
+    currency: 'USD',
+  },
 ];
 
 const mockContacts = [
@@ -40,7 +49,9 @@ const waitForLoad = () => waitFor(() => screen.getByText('Visa'));
 describe('TransferModal', () => {
   it('renders modal title', async () => {
     render(<TransferModal onClose={jest.fn()} />);
-    await waitFor(() => expect(screen.getByText('Transferir dinero')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('Transferir dinero')).toBeInTheDocument(),
+    );
   });
 
   it('renders loaded card issuer', async () => {
@@ -58,7 +69,9 @@ describe('TransferModal', () => {
     getContacts.mockResolvedValueOnce({ success: true, data: [] });
     render(<TransferModal onClose={jest.fn()} />);
     await waitFor(() =>
-      expect(screen.getByText('No hay contactos disponibles')).toBeInTheDocument(),
+      expect(
+        screen.getByText('No hay contactos disponibles'),
+      ).toBeInTheDocument(),
     );
   });
 
@@ -66,7 +79,9 @@ describe('TransferModal', () => {
     getCards.mockResolvedValueOnce({ success: true, data: [] });
     render(<TransferModal onClose={jest.fn()} />);
     await waitFor(() =>
-      expect(screen.getByText('No hay tarjetas disponibles')).toBeInTheDocument(),
+      expect(
+        screen.getByText('No hay tarjetas disponibles'),
+      ).toBeInTheDocument(),
     );
   });
 
@@ -74,7 +89,9 @@ describe('TransferModal', () => {
     render(<TransferModal onClose={jest.fn()} />);
     await waitForLoad();
     fireEvent.click(screen.getByText('Camila'));
-    const emailInput = screen.getByPlaceholderText('email@ejemplo.com') as HTMLInputElement;
+    const emailInput = screen.getByPlaceholderText(
+      'email@ejemplo.com',
+    ) as HTMLInputElement;
     expect(emailInput.value).toBe('camila@test.com');
   });
 
@@ -83,7 +100,9 @@ describe('TransferModal', () => {
     await waitForLoad();
 
     fireEvent.click(screen.getByText('Camila'));
-    fireEvent.change(screen.getByPlaceholderText('0.00'), { target: { value: '50' } });
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '50' },
+    });
     fireEvent.click(screen.getByText('Continuar'));
 
     await waitFor(() =>
@@ -98,7 +117,9 @@ describe('TransferModal', () => {
     await waitForLoad();
 
     fireEvent.click(screen.getByText('Camila'));
-    fireEvent.change(screen.getByPlaceholderText('0.00'), { target: { value: '50' } });
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '50' },
+    });
     fireEvent.click(screen.getByText('Continuar'));
 
     await waitFor(() => screen.getByText('Volver'));
@@ -114,7 +135,9 @@ describe('TransferModal', () => {
     await waitForLoad();
 
     fireEvent.click(screen.getByText('Camila'));
-    fireEvent.change(screen.getByPlaceholderText('0.00'), { target: { value: '50' } });
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '50' },
+    });
     fireEvent.click(screen.getByText('Continuar'));
 
     await waitFor(() => screen.getByText('Confirmar'));
@@ -129,11 +152,15 @@ describe('TransferModal', () => {
   it('calls onClose and onTransferSuccess when Listo is clicked', async () => {
     const onClose = jest.fn();
     const onTransferSuccess = jest.fn();
-    render(<TransferModal onClose={onClose} onTransferSuccess={onTransferSuccess} />);
+    render(
+      <TransferModal onClose={onClose} onTransferSuccess={onTransferSuccess} />,
+    );
     await waitForLoad();
 
     fireEvent.click(screen.getByText('Camila'));
-    fireEvent.change(screen.getByPlaceholderText('0.00'), { target: { value: '50' } });
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '50' },
+    });
     fireEvent.click(screen.getByText('Continuar'));
     await waitFor(() => screen.getByText('Confirmar'));
     fireEvent.click(screen.getByText('Confirmar'));
@@ -145,12 +172,17 @@ describe('TransferModal', () => {
   });
 
   it('shows error message on confirm step when transfer fails', async () => {
-    transferMoney.mockResolvedValueOnce({ success: false, message: 'Fondos insuficientes' });
+    transferMoney.mockResolvedValueOnce({
+      success: false,
+      message: 'Fondos insuficientes',
+    });
     render(<TransferModal onClose={jest.fn()} />);
     await waitForLoad();
 
     fireEvent.click(screen.getByText('Camila'));
-    fireEvent.change(screen.getByPlaceholderText('0.00'), { target: { value: '50' } });
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '50' },
+    });
     fireEvent.click(screen.getByText('Continuar'));
     await waitFor(() => screen.getByText('Confirmar'));
     fireEvent.click(screen.getByText('Confirmar'));
@@ -168,7 +200,9 @@ describe('TransferModal', () => {
     await waitForLoad();
 
     fireEvent.click(screen.getByText('Camila'));
-    fireEvent.change(screen.getByPlaceholderText('0.00'), { target: { value: '50' } });
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '50' },
+    });
     fireEvent.click(screen.getByText('Continuar'));
     await waitFor(() => screen.getByText('Confirmar'));
     fireEvent.click(screen.getByText('Confirmar'));

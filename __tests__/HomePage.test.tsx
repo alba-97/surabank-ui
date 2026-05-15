@@ -28,7 +28,8 @@ jest.mock('@/services/sounds', () => ({
   initSounds: jest.fn(),
 }));
 
-const { getCards, getMovements, getAccount } = jest.requireMock('@/services/api');
+const { getCards, getMovements, getAccount } =
+  jest.requireMock('@/services/api');
 
 const mockCards = [
   {
@@ -89,7 +90,9 @@ beforeEach(() => {
 describe('HomePage', () => {
   it('shows loading state initially', () => {
     render(<HomePage />);
-    expect(screen.getByRole('status', { name: 'Cargando' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('status', { name: 'Cargando' }),
+    ).toBeInTheDocument();
   });
 
   it('renders greeting after load', async () => {

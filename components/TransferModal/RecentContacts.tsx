@@ -36,12 +36,12 @@ export default function RecentContacts({
 }: RecentContactsProps) {
   return (
     <>
-      <p className="text-[#aaa] dark:text-[#6b7280] text-xs mb-3">Contactos recientes</p>
+      <p className="text-fg-3 text-xs mb-3">Contactos recientes</p>
       <div className="flex gap-3 mb-5 overflow-x-auto scrollbar-hide pb-1">
         {loading ? (
           <Spinner />
         ) : contacts.length === 0 ? (
-          <span className="text-[#aaa] text-xs py-3">
+          <span className="text-fg-3 text-xs py-3">
             No hay contactos disponibles
           </span>
         ) : (
@@ -65,7 +65,7 @@ export default function RecentContacts({
                 >
                   {getInitials(c.name)}
                 </div>
-                <span className="text-[#616e7c] dark:text-[#9ca3af] text-[10px] whitespace-nowrap">
+                <span className="text-fg-2 text-[10px] whitespace-nowrap">
                   {c.name.split(' ')[0]}
                 </span>
               </motion.button>

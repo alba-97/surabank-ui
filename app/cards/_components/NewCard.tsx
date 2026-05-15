@@ -15,13 +15,9 @@ export default function NewCard({ cards, creating, onCreate }: NewCardProps) {
 
   return (
     <section>
-      <h2 className="text-[#334154] dark:text-[#f3f4f6] text-base font-semibold mb-1">
-        Nueva tarjeta
-      </h2>
+      <h2 className="text-fg text-base font-semibold mb-1">Nueva tarjeta</h2>
       {atLimit && (
-        <p className="text-[#616e7c] dark:text-[#9ca3af] text-xs mb-3">
-          Límite de 6 tarjetas alcanzado
-        </p>
+        <p className="text-fg-2 text-xs mb-3">Límite de 6 tarjetas alcanzado</p>
       )}
       <div className="flex gap-4">
         {(['Visa', 'Mastercard'] as const).map((issuer) => (
@@ -49,9 +45,7 @@ export default function NewCard({ cards, creating, onCreate }: NewCardProps) {
         ))}
       </div>
       {cards.length > 0 && (
-        <p className="text-[#616e7c] dark:text-[#9ca3af] text-xs mt-2">
-          {cards.length} / 6 tarjetas
-        </p>
+        <p className="text-fg-2 text-xs mt-2">{cards.length} / 6 tarjetas</p>
       )}
     </section>
   );

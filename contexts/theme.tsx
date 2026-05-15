@@ -7,19 +7,22 @@ interface ThemeContextType {
   toggle: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextType>({ dark: false, toggle: () => {} });
+const ThemeContext = createContext<ThemeContextType>({
+  dark: false,
+  toggle: () => {},
+});
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('sura-theme') === 'dark';
+  });
 
   useEffect(() => {
-    const saved = localStorage.getItem('sura-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (saved === 'dark' || (!saved && prefersDark)) setDark(true);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    document.documentElement.setAttribute(
+      'data-theme',
+      dark ? 'dark' : 'light',
+    );
     localStorage.setItem('sura-theme', dark ? 'dark' : 'light');
   }, [dark]);
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import type { Card } from '@/interfaces';
 
 type Source =
@@ -55,54 +56,77 @@ export default function MoveBalance({
   const sources = buildSources(cards, accountBalance);
   const dests = buildDestinations(sources, fromKey);
 
+  const selectClass =
+    'w-full appearance-none bg-field rounded-xl pl-4 pr-10 py-3 text-fg text-sm outline-none cursor-pointer';
+
   return (
     <section>
-      <h2 className="text-[#334154] dark:text-[#f3f4f6] text-base font-semibold mb-4">
-        Mover saldo
-      </h2>
+      <h2 className="text-fg text-base font-semibold mb-4">Mover saldo</h2>
       <div className="flex flex-col gap-3">
         <div>
-          <label className="text-[#616e7c] dark:text-[#9ca3af] text-xs mb-1 block">Desde</label>
-          <select
-            value={fromKey}
-            onChange={(e) => {
-              onFromChange(e.target.value);
-              onToChange('');
-            }}
-            className="w-full bg-[#f0f4ff] dark:bg-[#1e293b] rounded-xl px-4 py-3 text-[#334154] dark:text-[#f3f4f6] text-sm outline-none cursor-pointer"
-          >
-            {sources.map((s) => (
-              <option
-                key={s.type === 'account' ? 'account' : s.id}
-                value={s.type === 'account' ? 'account' : String(s.id)}
-              >
-                {s.label} — ${s.balance}
-              </option>
-            ))}
-          </select>
+          <label className="text-fg-2 text-xs mb-1 block">Desde</label>
+          <div className="relative">
+            <select
+              value={fromKey}
+              onChange={(e) => {
+                onFromChange(e.target.value);
+                onToChange('');
+              }}
+              className={selectClass}
+            >
+              {sources.map((s) => (
+                <option
+                  key={s.type === 'account' ? 'account' : s.id}
+                  value={s.type === 'account' ? 'account' : String(s.id)}
+                >
+                  {s.label} — ${s.balance}
+                </option>
+              ))}
+            </select>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Image
+                src="/icons/chevron.svg"
+                className="w-4 h-4 opacity-40 dark:invert"
+                width={24}
+                height={24}
+                alt=""
+              />
+            </span>
+          </div>
         </div>
 
         <div>
-          <label className="text-[#616e7c] dark:text-[#9ca3af] text-xs mb-1 block">Hacia</label>
-          <select
-            value={toKey}
-            onChange={(e) => onToChange(e.target.value)}
-            className="w-full bg-[#f0f4ff] dark:bg-[#1e293b] rounded-xl px-4 py-3 text-[#334154] dark:text-[#f3f4f6] text-sm outline-none cursor-pointer"
-          >
-            <option value="">Seleccionar destino</option>
-            {dests.map((s) => (
-              <option
-                key={s.type === 'account' ? 'account' : s.id}
-                value={s.type === 'account' ? 'account' : String(s.id)}
-              >
-                {s.label} — ${s.balance}
-              </option>
-            ))}
-          </select>
+          <label className="text-fg-2 text-xs mb-1 block">Hacia</label>
+          <div className="relative">
+            <select
+              value={toKey}
+              onChange={(e) => onToChange(e.target.value)}
+              className={selectClass}
+            >
+              <option value="">Seleccionar destino</option>
+              {dests.map((s) => (
+                <option
+                  key={s.type === 'account' ? 'account' : s.id}
+                  value={s.type === 'account' ? 'account' : String(s.id)}
+                >
+                  {s.label} — ${s.balance}
+                </option>
+              ))}
+            </select>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Image
+                src="/icons/chevron.svg"
+                className="w-4 h-4 opacity-40 dark:invert"
+                width={24}
+                height={24}
+                alt=""
+              />
+            </span>
+          </div>
         </div>
 
         <div>
-          <label className="text-[#616e7c] dark:text-[#9ca3af] text-xs mb-1 block">Monto</label>
+          <label className="text-fg-2 text-xs mb-1 block">Monto</label>
           <input
             type="number"
             min="0.01"
@@ -110,12 +134,12 @@ export default function MoveBalance({
             value={amount}
             onChange={(e) => onAmountChange(e.target.value)}
             placeholder="0.00"
-            className="w-full bg-[#f0f4ff] dark:bg-[#1e293b] rounded-xl px-4 py-3 text-[#334154] dark:text-[#f3f4f6] text-sm outline-none"
+            className="w-full bg-field rounded-xl px-4 py-3 text-fg text-sm outline-none"
           />
         </div>
 
         <motion.button
-          className="w-full bg-[#6c8ff8] text-white font-semibold rounded-2xl py-4 mt-1 cursor-pointer disabled:opacity-50"
+          className="w-full bg-accent text-white font-semibold rounded-2xl py-4 mt-1 cursor-pointer disabled:opacity-50"
           whileTap={{ scale: 0.97 }}
           onClick={onTransfer}
           disabled={

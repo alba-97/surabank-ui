@@ -35,9 +35,3 @@ export function playError() {
   error = getOrLoad(error, '/sounds/error.wav');
   play(error);
 }
-
-export function playLogin() {
-  playSuccess();
-}
-
-export function initSounds() {}

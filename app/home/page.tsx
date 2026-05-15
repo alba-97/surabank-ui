@@ -9,16 +9,21 @@ import {
   getAccount,
   getNotifications,
 } from '@/services/api';
-import { getToken, getName, clearSession, isAuthenticated } from '@/services/auth';
+import {
+  getToken,
+  getName,
+  clearSession,
+  isAuthenticated,
+} from '@/services/auth';
 import { playTap } from '@/services/sounds';
 import TransferModal from '@/components/TransferModal';
 import Navbar from '@/components/Navbar';
-import Movements from './_components/Movements';
-import CardCarousel from './_components/CardCarousel';
-import Header from './_components/Header';
 import Spinner from '@/components/Spinner';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Card, Notification, Transaction } from '@/interfaces';
+import Movements from './_components/Movements';
+import CardCarousel from './_components/CardCarousel';
+import Header from './_components/Header';
 
 const PAGE_SIZE = 5;
 
@@ -46,9 +51,9 @@ export default function HomePage() {
       return;
     }
     const token = getToken()!;
-    setName(getName()?.split(' ')[0] ?? 'Usuario');
 
     const load = async () => {
+      setName(getName()?.split(' ')[0] ?? 'Usuario');
       try {
         const [cardsRes, movRes, accountRes, notifRes] = await Promise.all([
           getCards(token),
@@ -101,7 +106,7 @@ export default function HomePage() {
       }
     };
     fetch();
-  }, [debouncedQuery, page]);
+  }, [debouncedQuery, page, router]);
 
   const toggleSearch = () => {
     playTap();
@@ -119,7 +124,7 @@ export default function HomePage() {
   if (loading) return <Spinner />;
 
   return (
-    <div className="mobile-container flex flex-col min-h-screen bg-white dark:bg-[#111827] relative">
+    <div className="mobile-container flex flex-col min-h-screen bg-page relative">
       <ThemeToggle />
       <Header
         name={name}

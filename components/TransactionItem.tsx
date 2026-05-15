@@ -38,7 +38,7 @@ export default function TransactionItem({
 
   return (
     <motion.div
-      className="bg-white dark:bg-[#1f2937] rounded-2xl shadow-[0_8px_30px_0_rgba(0,0,0,0.06)] px-4 py-4 flex items-center gap-3 cursor-pointer"
+      className="bg-surface rounded-2xl shadow-[0_8px_30px_0_rgba(0,0,0,0.06)] px-4 py-4 flex items-center gap-3 cursor-pointer"
       whileHover={{ scale: 1.01, boxShadow: '0 12px 40px 0 rgba(0,0,0,0.1)' }}
       whileTap={{ scale: 0.98 }}
       onClick={() => playTap()}
@@ -51,10 +51,10 @@ export default function TransactionItem({
       </motion.div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-[#616e7c] dark:text-[#9ca3af] text-base font-medium truncate">
+        <p className="text-fg-2 text-base font-medium truncate">
           {transaction.title}
         </p>
-        <p className="text-[#aaa] dark:text-[#6b7280] text-xs mt-0.5">
+        <p className="text-fg-3 text-xs mt-0.5">
           {TX_LABEL[transaction.transactionType] ?? transaction.transactionType}
         </p>
       </div>

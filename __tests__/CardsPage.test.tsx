@@ -30,7 +30,11 @@ jest.mock('@/services/sounds', () => ({
 
 jest.mock('@/app/cards/_components/NewCard', () => ({
   __esModule: true,
-  default: ({ onCreate }: { onCreate: (issuer: 'Visa' | 'Mastercard') => void }) => (
+  default: ({
+    onCreate,
+  }: {
+    onCreate: (issuer: 'Visa' | 'Mastercard') => void;
+  }) => (
     <button data-testid="create-visa" onClick={() => onCreate('Visa')}>
       Nueva Visa
     </button>
@@ -45,7 +49,9 @@ jest.mock('@/app/cards/_components/MoveBalance', () => ({
 jest.mock('@/components/Navbar', () => ({
   __esModule: true,
   default: ({ onTransfer }: { onTransfer?: () => void }) => (
-    <button data-testid="open-transfer" onClick={onTransfer}>Transfer</button>
+    <button data-testid="open-transfer" onClick={onTransfer}>
+      Transfer
+    </button>
   ),
 }));
 
@@ -61,25 +67,40 @@ jest.mock('@/components/TransferModal', () => ({
 const { getCards, getAccount, createCard } = jest.requireMock('@/services/api');
 
 const mockCards = [
-  { id: 1, issuer: 'Mastercard', name: 'Carlos', expDate: '02/30', lastDigits: 1234, balance: '978.85', currency: 'USD' },
+  {
+    id: 1,
+    issuer: 'Mastercard',
+    name: 'Carlos',
+    expDate: '02/30',
+    lastDigits: 1234,
+    balance: '978.85',
+    currency: 'USD',
+  },
 ];
 
 beforeEach(() => {
   jest.clearAllMocks();
   getCards.mockResolvedValue({ success: true, data: mockCards });
   getAccount.mockResolvedValue({ success: true, data: { balance: '500.00' } });
-  createCard.mockResolvedValue({ success: true, data: { id: 2, issuer: 'Visa' } });
+  createCard.mockResolvedValue({
+    success: true,
+    data: { id: 2, issuer: 'Visa' },
+  });
 });
 
 describe('CardsPage', () => {
   it('shows loading spinner initially', () => {
     render(<CardsPage />);
-    expect(screen.getByRole('status', { name: 'Cargando' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('status', { name: 'Cargando' }),
+    ).toBeInTheDocument();
   });
 
   it('renders page title after load', async () => {
     render(<CardsPage />);
-    await waitFor(() => expect(screen.getByText('Tarjetas')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('Tarjetas')).toBeInTheDocument(),
+    );
   });
 
   it('renders sub-components after load', async () => {
@@ -105,15 +126,22 @@ describe('CardsPage', () => {
     render(<CardsPage />);
     await waitFor(() => screen.getByTestId('create-visa'));
     fireEvent.click(screen.getByTestId('create-visa'));
-    await waitFor(() => expect(screen.getByText('Tarjeta Visa creada')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('Tarjeta Visa creada')).toBeInTheDocument(),
+    );
   });
 
   it('shows error feedback when createCard returns failure', async () => {
-    createCard.mockResolvedValueOnce({ success: false, message: 'Error al crear tarjeta' });
+    createCard.mockResolvedValueOnce({
+      success: false,
+      message: 'Error al crear tarjeta',
+    });
     render(<CardsPage />);
     await waitFor(() => screen.getByTestId('create-visa'));
     fireEvent.click(screen.getByTestId('create-visa'));
-    await waitFor(() => expect(screen.getByText('Error al crear tarjeta')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('Error al crear tarjeta')).toBeInTheDocument(),
+    );
   });
 
   it('shows error feedback when createCard throws', async () => {
@@ -121,18 +149,30 @@ describe('CardsPage', () => {
     render(<CardsPage />);
     await waitFor(() => screen.getByTestId('create-visa'));
     fireEvent.click(screen.getByTestId('create-visa'));
-    await waitFor(() => expect(screen.getByText('Error al crear tarjeta')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('Error al crear tarjeta')).toBeInTheDocument(),
+    );
   });
 
   it('shows limit error when already at 6 cards', async () => {
     const sixCards = Array.from({ length: 6 }, (_, i) => ({
-      id: i + 1, issuer: 'Visa', name: 'Carlos', expDate: '02/30', lastDigits: 1234, balance: '0.00', currency: 'USD',
+      id: i + 1,
+      issuer: 'Visa',
+      name: 'Carlos',
+      expDate: '02/30',
+      lastDigits: 1234,
+      balance: '0.00',
+      currency: 'USD',
     }));
     getCards.mockResolvedValue({ success: true, data: sixCards });
     render(<CardsPage />);
     await waitFor(() => screen.getByTestId('create-visa'));
     fireEvent.click(screen.getByTestId('create-visa'));
-    await waitFor(() => expect(screen.getByText('Límite de 6 tarjetas alcanzado')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByText('Límite de 6 tarjetas alcanzado'),
+      ).toBeInTheDocument(),
+    );
   });
 
   it('opens TransferModal when navbar transfer button is clicked', async () => {

@@ -2,16 +2,49 @@
 
 @theme inline {
   --font-poppins: var(--font-poppins);
+  --color-fg: var(--c-fg);
+  --color-fg-2: var(--c-fg-2);
+  --color-fg-3: var(--c-fg-3);
+  --color-page: var(--c-page);
+  --color-surface: var(--c-surface);
+  --color-elevated: var(--c-elevated);
+  --color-field: var(--c-field);
+  --color-field-border: var(--c-field-border);
+  --color-divider: var(--c-divider);
+  --color-divider-2: var(--c-divider-2);
+  --color-primary: var(--c-primary);
+  --color-accent: var(--c-accent);
 }
 
 @variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 :root {
-  --primary: #005cee;
-  --bg: #f9fafc;
-  --text-main: #334154;
-  --text-secondary: #616e7c;
-  --text-muted: #aaaaaa;
+  --c-fg: #334154;
+  --c-fg-2: #616e7c;
+  --c-fg-3: #aaaaaa;
+  --c-page: #f9fafc;
+  --c-surface: #ffffff;
+  --c-elevated: #f9fafc;
+  --c-field: #f0f4ff;
+  --c-field-border: transparent;
+  --c-divider: #e5e7eb;
+  --c-divider-2: #f0f4ff;
+  --c-primary: #005cee;
+  --c-accent: #6c8ff8;
+}
+
+html[data-theme='dark'] {
+  background-color: #0f172a;
+  --c-fg: #f3f4f6;
+  --c-fg-2: #9ca3af;
+  --c-fg-3: #6b7280;
+  --c-page: #111827;
+  --c-surface: #1f2937;
+  --c-elevated: #374151;
+  --c-field: #1e293b;
+  --c-field-border: #374151;
+  --c-divider: #4b5563;
+  --c-divider-2: #374151;
 }
 
 * {
@@ -20,11 +53,6 @@
 
 html {
   background-color: #dbdbdb;
-}
-
-html[data-theme="dark"] {
-  background-color: #0f172a;
-  --bg: #111827;
 }
 
 body {
@@ -38,7 +66,7 @@ body {
   width: 100%;
   min-height: 100dvh;
   margin: 0 auto;
-  background-color: var(--bg);
+  background-color: var(--c-page);
   position: relative;
   overflow: hidden;
 }

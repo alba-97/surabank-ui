@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { Notification } from '@/interfaces';
 
 interface NotificationsPanelProps {
@@ -36,38 +36,34 @@ export default function NotificationsPanel({
       />
 
       <motion.div
-        className="absolute top-16 right-4 z-50 w-72 bg-white dark:bg-[#1f2937] rounded-2xl shadow-[0_8px_30px_0_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_0_rgba(0,0,0,0.4)] overflow-hidden"
+        className="absolute top-16 right-4 z-50 w-72 bg-surface rounded-2xl shadow-[0_8px_30px_0_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_0_rgba(0,0,0,0.4)] overflow-hidden"
         initial={{ opacity: 0, y: -8, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -8, scale: 0.95 }}
         transition={{ duration: 0.15 }}
       >
-        <div className="px-4 py-3 border-b border-[#f0f4ff] dark:border-[#374151]">
-          <h3 className="text-[#334154] dark:text-[#f3f4f6] text-sm font-semibold">
-            Notificaciones
-          </h3>
+        <div className="px-4 py-3 border-b border-divider-2">
+          <h3 className="text-fg text-sm font-semibold">Notificaciones</h3>
         </div>
 
         <div className="max-h-72 overflow-y-auto scrollbar-thin">
           {notifications.length === 0 ? (
-            <p className="text-[#aaa] dark:text-[#6b7280] text-xs text-center py-6">
+            <p className="text-fg-3 text-xs text-center py-6">
               No hay notificaciones
             </p>
           ) : (
             notifications.map((n) => (
               <div
                 key={n.id}
-                className={`px-4 py-3 border-b border-[#f0f4ff] dark:border-[#374151] last:border-0 ${!n.read ? 'bg-[#f0f4ff]/50 dark:bg-[#1e293b]/50' : ''}`}
+                className={`px-4 py-3 border-b border-divider-2 last:border-0 ${!n.read ? 'bg-field/50' : ''}`}
               >
                 <div className="flex items-start gap-2">
                   {!n.read && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#005cee] flex-shrink-0 mt-1.5" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 mt-1.5" />
                   )}
                   <div className={!n.read ? '' : 'pl-3.5'}>
-                    <p className="text-[#334154] dark:text-[#f3f4f6] text-xs leading-snug">
-                      {n.message}
-                    </p>
-                    <p className="text-[#aaa] dark:text-[#6b7280] text-[10px] mt-0.5">
+                    <p className="text-fg text-xs leading-snug">{n.message}</p>
+                    <p className="text-fg-3 text-[10px] mt-0.5">
                       {formatTime(n.createdAt)}
                     </p>
                   </div>

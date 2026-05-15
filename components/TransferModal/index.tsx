@@ -3,18 +3,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { playTap, playSuccess, playError } from '@/services/sounds';
-import {
-  getContacts,
-  getCards,
-  transferMoney
-} from '@/services/api';
+import { getContacts, getCards, transferMoney } from '@/services/api';
 import { getToken } from '@/services/auth';
+import { Card, Contact } from '@/interfaces';
 import PaymentCard from './PaymentCard';
 import RecentContacts from './RecentContacts';
 import EmailAndAmount from './EmailAndAmount';
 import ConfirmTransfer from './ConfirmTransfer';
 import TransferSuccess from './TransferSuccess';
-import { Card, Contact } from '@/interfaces';
 
 interface Props {
   onClose: () => void;
@@ -128,19 +124,19 @@ export default function TransferModal({ onClose, onTransferSuccess }: Props) {
       />
 
       <motion.div
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[414px] bg-white dark:bg-[#1f2937] rounded-t-3xl z-50 px-6 py-6"
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[414px] bg-surface rounded-t-3xl z-50 px-6 py-6"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
       >
         <div className="flex justify-center mb-5">
-          <div className="w-10 h-1 bg-[#e5e7eb] rounded-full" />
+          <div className="w-10 h-1 bg-divider rounded-full" />
         </div>
 
         {step === 'form' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <h2 className="text-[#334154] dark:text-[#f3f4f6] text-xl font-semibold mb-6">
+            <h2 className="text-fg text-xl font-semibold mb-6">
               Transferir dinero
             </h2>
 
@@ -169,7 +165,7 @@ export default function TransferModal({ onClose, onTransferSuccess }: Props) {
             )}
 
             <motion.button
-              className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 disabled:opacity-50 cursor-pointer"
+              className="w-full bg-primary text-white font-semibold text-base rounded-2xl py-4 disabled:opacity-50 cursor-pointer"
               disabled={
                 !recipientEmail ||
                 !amount ||

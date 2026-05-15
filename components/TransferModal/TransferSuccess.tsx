@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 interface TransferSuccessProps {
@@ -27,27 +28,16 @@ export default function TransferSuccess({
         animate={{ scale: [1, 1.1, 1] }}
         transition={{ duration: 0.4 }}
       >
-        <svg
-          width="36"
-          height="36"
-          viewBox="0 0 24 24"
-          fill="none"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          stroke="#74cc9b"
-        >
-          <path d="M20 6L9 17l-5-5" />
-        </svg>
+        <Image src="/icons/check.svg" width={36} height={36} alt="Éxito" />
       </motion.div>
-      <h2 className="text-[#334154] dark:text-[#f3f4f6] text-xl font-semibold mb-2">
+      <h2 className="text-fg text-xl font-semibold mb-2">
         ¡Transferencia exitosa!
       </h2>
-      <p className="text-[#aaa] dark:text-[#9ca3af] text-sm text-center mb-6">
+      <p className="text-fg-3 text-sm text-center mb-6">
         Se transfirieron ${amount} a {recipientName || recipientEmail}
       </p>
       <motion.button
-        className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 cursor-pointer"
+        className="w-full bg-primary text-white font-semibold text-base rounded-2xl py-4 cursor-pointer"
         whileTap={{ scale: 0.97 }}
         onClick={onClose}
       >

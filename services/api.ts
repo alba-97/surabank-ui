@@ -1,4 +1,11 @@
-import { Card, Contact, LoginResponse, MovementsResponse, Notification, TransferResponse } from '@/interfaces';
+import {
+  Card,
+  Contact,
+  LoginResponse,
+  MovementsResponse,
+  Notification,
+  TransferResponse,
+} from '@/interfaces';
 import axios from 'axios';
 
 const api = axios.create({
@@ -112,7 +119,11 @@ export async function getNotifications(
 }
 
 export async function markNotificationsRead(token: string): Promise<void> {
-  await api.patch('/surabank/notifications/read-all', {}, {
-    headers: { Authorization: token },
-  });
+  await api.patch(
+    '/surabank/notifications/read-all',
+    {},
+    {
+      headers: { Authorization: token },
+    },
+  );
 }
