@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+
+:root {
+  --primary: #005cee;
+  --bg: #f9fafc;
+  --text-main: #334154;
+  --text-secondary: #616e7c;
+  --text-muted: #aaaaaa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mobile-container {
+  max-width: 414px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background-color: var(--bg);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
