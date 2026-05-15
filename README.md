@@ -1,57 +1,58 @@
 # SuraBank UI
 
-Interfaz de usuario para la aplicación bancaria SuraBank.
+User interface for the SuraBank banking application.
 
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
 - **UI**: React 19 + Tailwind CSS 4
-- **Animaciones**: Framer Motion
+- **Animations**: Framer Motion
 - **HTTP**: Axios
+- **Sound**: Howler.js
 - **Testing**: Jest + Testing Library
 
-## Estructura
+## Structure
 
 ```
 ui/
 ├── app/
-│   ├── login/           # Página de login
-│   ├── home/           # Dashboard (tarjetas, movimientos)
+│   ├── login/           # Login page
+│   ├── home/           # Dashboard (cards, movements)
 │   │   └── _components/
 │   │       ├── CardCarousel.tsx
 │   │       ├── Header.tsx
 │   │       └── Movements.tsx
-│   ├── cards/          # Gestión de tarjetas
+│   ├── cards/          # Card management
 │   │   └── _components/
 │   │       ├── MoveBalance.tsx
 │   │       └── NewCard.tsx
-│   ├── layout.tsx      # Layout principal
-│   └── page.tsx        # Landing (redirect a login)
-├── contexts/           # Contextos React (theme)
-├── interfaces/         # Tipos TypeScript
-├── public/             # Assets estáticos
-│   ├── icons/          # Iconos SVG
-│   └── sounds/         # Efectos de sonido
-└── services/           # Cliente API
+│   ├── layout.tsx      # Main layout
+│   └── page.tsx        # Landing (redirects to login)
+├── contexts/           # React contexts (theme)
+├── interfaces/         # TypeScript types
+├── public/             # Static assets
+│   ├── icons/          # SVG icons
+│   └── sounds/         # Sound effects
+└── services/           # API client
 ```
 
-## Páginas
+## Pages
 
-- `/` - Landing (redirige a login)
-- `/login` - Inicio de sesión
-- `/home` - Dashboard principal (tarjetas, movimientos)
-- `/cards` - Gestión de tarjetas
+- `/` - Landing (redirects to login)
+- `/login` - Login page
+- `/home` - Main dashboard (cards, movements)
+- `/cards` - Card management
 
 ## Scripts
 
 ```bash
-npm run dev      # Desarrollo
-npm run build    # Producción
-npm run start    # Servir producción
+npm run dev      # Development
+npm run build    # Production build
+npm run start    # Serve production
 npm run lint     # Linter
 npm run test    # Tests
 ```
 
-## Configuración
+## Configuration
 
-La UI se comunica con la API en `http://localhost:8000/surabank`. Configurar la variable de entorno `NEXT_PUBLIC_API_URL` si es necesario.
+The UI communicates with the API at `http://localhost:8000/surabank`. Set `NEXT_PUBLIC_API_URL` environment variable if needed.
