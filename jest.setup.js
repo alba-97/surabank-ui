@@ -1,4 +1,3 @@
-// Suppress act() warnings in tests - they're development warnings and don't affect functionality
 const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {

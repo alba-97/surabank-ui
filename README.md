@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SuraBank UI
 
-## Getting Started
+Interfaz de usuario para la aplicación bancaria SuraBank.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework**: Next.js 16 (App Router)
+- **UI**: React 19 + Tailwind CSS 4
+- **Animaciones**: Framer Motion
+- **HTTP**: Axios
+- **Testing**: Jest + Testing Library
+
+## Estructura
+
+```
+ui/
+├── app/
+│   ├── login/           # Página de login
+│   ├── home/           # Dashboard (tarjetas, movimientos)
+│   │   └── _components/
+│   │       ├── CardCarousel.tsx
+│   │       ├── Header.tsx
+│   │       └── Movements.tsx
+│   ├── cards/          # Gestión de tarjetas
+│   │   └── _components/
+│   │       ├── MoveBalance.tsx
+│   │       └── NewCard.tsx
+│   ├── layout.tsx      # Layout principal
+│   └── page.tsx        # Landing (redirect a login)
+├── contexts/           # Contextos React (theme)
+├── interfaces/         # Tipos TypeScript
+├── public/             # Assets estáticos
+│   ├── icons/          # Iconos SVG
+│   └── sounds/         # Efectos de sonido
+└── services/           # Cliente API
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Páginas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/` - Landing (redirige a login)
+- `/login` - Inicio de sesión
+- `/home` - Dashboard principal (tarjetas, movimientos)
+- `/cards` - Gestión de tarjetas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+```bash
+npm run dev      # Desarrollo
+npm run build    # Producción
+npm run start    # Servir producción
+npm run lint     # Linter
+npm run test    # Tests
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Configuración
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+La UI se comunica con la API en `http://localhost:8000/surabank`. Configurar la variable de entorno `NEXT_PUBLIC_API_URL` si es necesario.

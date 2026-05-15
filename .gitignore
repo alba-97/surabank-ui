@@ -2,6 +2,7 @@
 out/
 coverage/
 node_modules/
+.swc/
 .env
 .env.local
 .env.*.local
