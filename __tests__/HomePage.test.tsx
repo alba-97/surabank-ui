@@ -10,7 +10,7 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/lib/api', () => ({
   getCards: jest.fn(),
-  getLastMovements: jest.fn(),
+  getMovements: jest.fn(),
 }));
 
 jest.mock('@/lib/auth', () => ({
@@ -27,7 +27,7 @@ jest.mock('@/lib/sounds', () => ({
   initSounds: jest.fn(),
 }));
 
-const { getCards, getLastMovements } = jest.requireMock('@/lib/api');
+const { getCards, getMovements } = jest.requireMock('@/lib/api');
 
 const mockCards = [
   {
@@ -77,7 +77,7 @@ const mockMovements = [
 beforeEach(() => {
   jest.clearAllMocks();
   getCards.mockResolvedValue({ success: true, data: mockCards });
-  getLastMovements.mockResolvedValue({ success: true, data: mockMovements });
+  getMovements.mockResolvedValue({ success: true, data: mockMovements, total: mockMovements.length });
 });
 
 describe('HomePage', () => {

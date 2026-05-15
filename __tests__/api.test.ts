@@ -1,35 +1,43 @@
-import { login, getCards, getLastMovements } from '@/lib/api';
+import { login, getCards, getMovements } from '@/lib/api';
+import axios from 'axios';
 
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+jest.mock('axios', () => {
+  const mockAxiosInstance = {
+    post: jest.fn(),
+    get: jest.fn(),
+    interceptors: {
+      response: { use: jest.fn() },
+    },
+  };
+  return { create: jest.fn(() => mockAxiosInstance), default: { create: jest.fn(() => mockAxiosInstance) } };
+});
+
+const getInstance = () => (axios.create as jest.Mock).mock.results[0].value;
 
 beforeEach(() => {
-  mockFetch.mockClear();
+  const inst = getInstance();
+  inst.post.mockClear();
+  inst.get.mockClear();
 });
 
 describe('login()', () => {
   it('sends POST request with credentials', async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({
-        success: true,
-        data: { name: 'Carlos', token: 'abc' },
-      }),
+    getInstance().post.mockResolvedValueOnce({
+      data: { success: true, data: { name: 'Carlos', token: 'abc' } },
     });
 
     const res = await login('user@test.com', 'pass');
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/surabank/login'),
-      expect.objectContaining({ method: 'POST' }),
+    expect(getInstance().post).toHaveBeenCalledWith(
+      '/surabank/login',
+      { email: 'user@test.com', password: 'pass' },
     );
     expect(res.success).toBe(true);
     expect(res.data.token).toBe('abc');
   });
 
   it('returns success false on bad credentials', async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({ success: false }),
-    });
+    getInstance().post.mockResolvedValueOnce({ data: { success: false } });
 
     const res = await login('bad@email.com', 'wrong');
     expect(res.success).toBe(false);
@@ -38,34 +46,22 @@ describe('login()', () => {
 
 describe('getCards()', () => {
   it('sends Authorization header', async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({ success: true, data: [] }),
-    });
+    getInstance().get.mockResolvedValueOnce({ data: { success: true, data: [] } });
 
     await getCards('my-token');
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/surabank/cards'),
+    expect(getInstance().get).toHaveBeenCalledWith(
+      '/surabank/cards',
       expect.objectContaining({ headers: { Authorization: 'my-token' } }),
     );
   });
 
   it('returns card list', async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({
+    getInstance().get.mockResolvedValueOnce({
+      data: {
         success: true,
-        data: [
-          {
-            id: 1,
-            issuer: 'Mastercard',
-            name: 'Test',
-            expDate: '01/30',
-            lastDigits: 1234,
-            balance: '100',
-            currency: 'USD',
-          },
-        ],
-      }),
+        data: [{ id: 1, issuer: 'Mastercard', name: 'Test', expDate: '01/30', lastDigits: 1234, balance: '100', currency: 'USD' }],
+      },
     });
 
     const res = await getCards('token');
@@ -74,37 +70,40 @@ describe('getCards()', () => {
   });
 });
 
-describe('getLastMovements()', () => {
-  it('sends Authorization header', async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({ success: true, data: [] }),
-    });
+describe('getMovements()', () => {
+  it('sends Authorization header and hits /surabank/movements', async () => {
+    getInstance().get.mockResolvedValueOnce({ data: { success: true, data: [], total: 0 } });
 
-    await getLastMovements('tok');
+    await getMovements('tok');
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/surabank/movements/last'),
+    expect(getInstance().get).toHaveBeenCalledWith(
+      '/surabank/movements',
       expect.objectContaining({ headers: { Authorization: 'tok' } }),
     );
   });
 
-  it('returns movement list', async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({
+  it('returns movement list with total', async () => {
+    getInstance().get.mockResolvedValueOnce({
+      data: {
         success: true,
-        data: [
-          {
-            id: 1,
-            title: 'Adobe',
-            amount: '$125',
-            transactionType: 'SUS',
-            date: '2026-05-10',
-          },
-        ],
-      }),
+        total: 1,
+        data: [{ id: 1, title: 'Adobe', amount: '$125', transactionType: 'SUS', date: '2026-05-10' }],
+      },
     });
 
-    const res = await getLastMovements('token');
+    const res = await getMovements('token');
+    expect(res.total).toBe(1);
     expect(res.data[0].transactionType).toBe('SUS');
+  });
+
+  it('passes search and pageNumber as query params', async () => {
+    getInstance().get.mockResolvedValueOnce({ data: { success: true, data: [], total: 0 } });
+
+    await getMovements('tok', { search: 'Adobe', pageNumber: 2 });
+
+    expect(getInstance().get).toHaveBeenCalledWith(
+      '/surabank/movements',
+      expect.objectContaining({ params: { search: 'Adobe', pageNumber: 2 } }),
+    );
   });
 });

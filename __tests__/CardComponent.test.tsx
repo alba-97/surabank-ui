@@ -47,6 +47,6 @@ describe('CardComponent', () => {
         index={1}
       />,
     );
-    expect(screen.getByText('VISA')).toBeInTheDocument();
+    expect(screen.getByAltText('Visa')).toBeInTheDocument();
   });
 });

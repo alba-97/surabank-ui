@@ -1,52 +1,128 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { playTap, playSuccess } from '@/lib/sounds';
+import { getContacts, getCards, transferMoney, type Contact, type Card } from '@/lib/api';
+import { getToken } from '@/lib/auth';
 
 interface Props {
   onClose: () => void;
+  onTransferSuccess?: () => void;
 }
 
-const CONTACTS = [
-  {
-    name: 'Camila Montenegro',
-    avatar: 'CM',
-    color: '#e4fff0',
-    textColor: '#74cc9b',
-  },
-  {
-    name: 'Leonardo Echazu',
-    avatar: 'LE',
-    color: '#feead4',
-    textColor: '#ef9c55',
-  },
-  {
-    name: 'Martin Bozzini',
-    avatar: 'MB',
-    color: '#f3e5ff',
-    textColor: '#b946ff',
-  },
-];
-
-export default function TransferModal({ onClose }: Props) {
-  const [recipient, setRecipient] = useState('');
+export default function TransferModal({ onClose, onTransferSuccess }: Props) {
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientName, setRecipientName] = useState('');
   const [amount, setAmount] = useState('');
   const [step, setStep] = useState<'form' | 'confirm' | 'success'>('form');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [contactsLoading, setContactsLoading] = useState(true);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    Promise.all([
+      getContacts(token),
+      getCards(token),
+    ]).then(([contactsRes, cardsRes]) => {
+      if (contactsRes.success) setContacts(contactsRes.data);
+      if (cardsRes.success) {
+        setCards(cardsRes.data);
+        if (cardsRes.data.length > 0) setSelectedCardId(cardsRes.data[0].id);
+      }
+    }).finally(() => setContactsLoading(false));
+  }, []);
+
+  const selectedCard = cards.find((c) => c.id === selectedCardId);
+
+  const handleSelectContact = (contact: Contact) => {
+    setRecipientEmail(contact.email);
+    setRecipientName(contact.name);
+    setError('');
+    playTap();
+  };
+
+  const handleEmailChange = (value: string) => {
+    setRecipientEmail(value);
+    setRecipientName('');
+    setError('');
+    const match = contacts.find((c) => c.email === value);
+    if (match) setRecipientName(match.name);
+  };
 
   const handleConfirm = async () => {
     playTap();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    setStep('success');
-    playSuccess();
+    setError('');
+
+    const token = getToken();
+    if (!token) {
+      setError('Session expired');
+      setLoading(false);
+      return;
+    }
+
+    if (!selectedCardId) {
+      setError('Select a card');
+      setLoading(false);
+      return;
+    }
+
+    const amountNum = Number(amount);
+
+    try {
+      const res = await transferMoney(token, recipientEmail, amountNum, selectedCardId);
+      if (res.success) {
+        setStep('success');
+        playSuccess();
+      } else {
+        setError(res.message || 'Transfer failed');
+      }
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { message?: string } } };
+        setError(axiosErr.response?.data?.message || 'Server error. Please try again.');
+      } else {
+        setError('Server error. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
     playTap();
+    onTransferSuccess?.();
     onClose();
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const colorPairs = [
+    { bg: '#e4fff0', text: '#74cc9b' },
+    { bg: '#feead4', text: '#ef9c55' },
+    { bg: '#f3e5ff', text: '#b946ff' },
+    { bg: '#ffe0e0', text: '#ff6b6b' },
+    { bg: '#e0f0ff', text: '#5b9cf5' },
+  ];
+
+  const getColorPair = (index: number) => colorPairs[index % colorPairs.length];
+
+  const cardColorMap: Record<string, string> = {
+    Mastercard: '#005cee',
+    Visa: '#1a1a2e',
   };
 
   return (
@@ -83,38 +159,88 @@ export default function TransferModal({ onClose }: Props) {
               className="text-[#aaa] text-xs mb-3"
               style={{ fontFamily: 'var(--font-poppins)' }}
             >
+              Tarjeta de pago
+            </p>
+            <div className="flex gap-2 mb-5 overflow-x-auto scrollbar-hide pb-1">
+              {cards.length === 0 ? (
+                <span className="text-[#aaa] text-xs py-3">
+                  No hay tarjetas disponibles
+                </span>
+              ) : (
+                cards.map((c) => (
+                  <motion.button
+                    key={c.id}
+                    className="flex-shrink-0 rounded-xl px-4 py-3 border-2 transition-all cursor-pointer"
+                    style={{
+                      backgroundColor: selectedCardId === c.id ? '#f0f4ff' : '#f9fafc',
+                      borderColor: selectedCardId === c.id ? cardColorMap[c.issuer] || '#005cee' : 'transparent',
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setSelectedCardId(c.id);
+                      playTap();
+                    }}
+                  >
+                    <p className="text-[#334154] text-sm font-medium" style={{ fontFamily: 'var(--font-poppins)' }}>
+                      {c.issuer}
+                    </p>
+                    <p className="text-[#aaa] text-xs" style={{ fontFamily: 'var(--font-poppins)' }}>
+                      **** {c.lastDigits} · ${c.balance}
+                    </p>
+                  </motion.button>
+                ))
+              )}
+            </div>
+
+            <p
+              className="text-[#aaa] text-xs mb-3"
+              style={{ fontFamily: 'var(--font-poppins)' }}
+            >
               Contactos recientes
             </p>
             <div className="flex gap-3 mb-5 overflow-x-auto scrollbar-hide pb-1">
-              {CONTACTS.map((c) => (
-                <motion.button
-                  key={c.name}
-                  className="flex flex-col items-center gap-1.5 flex-shrink-0"
-                  whileTap={{ scale: 0.92 }}
-                  onClick={() => {
-                    setRecipient(c.name);
-                    playTap();
-                  }}
-                >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all"
-                    style={{
-                      backgroundColor: c.color,
-                      color: c.textColor,
-                      borderColor:
-                        recipient === c.name ? c.textColor : 'transparent',
-                    }}
-                  >
-                    {c.avatar}
-                  </div>
-                  <span
-                    className="text-[#616e7c] text-[10px] whitespace-nowrap"
-                    style={{ fontFamily: 'var(--font-poppins)' }}
-                  >
-                    {c.name.split(' ')[0]}
-                  </span>
-                </motion.button>
-              ))}
+              {contactsLoading ? (
+                <div className="flex items-center gap-2 py-3">
+                  <div className="w-4 h-4 border-2 border-[#005cee]/20 border-t-[#005cee] rounded-full animate-spin" />
+                  <span className="text-[#aaa] text-xs">Cargando...</span>
+                </div>
+              ) : contacts.length === 0 ? (
+                <span className="text-[#aaa] text-xs py-3">
+                  No hay contactos disponibles
+                </span>
+              ) : (
+                contacts.map((c, i) => {
+                  const pair = getColorPair(i);
+                  return (
+                    <motion.button
+                      key={c.id}
+                      className="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer"
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => handleSelectContact(c)}
+                    >
+                      <div
+                        className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-all"
+                        style={{
+                          backgroundColor: pair.bg,
+                          color: pair.text,
+                          borderColor:
+                            recipientEmail === c.email
+                              ? pair.text
+                              : 'transparent',
+                        }}
+                      >
+                        {getInitials(c.name)}
+                      </div>
+                      <span
+                        className="text-[#616e7c] text-[10px] whitespace-nowrap"
+                        style={{ fontFamily: 'var(--font-poppins)' }}
+                      >
+                        {c.name.split(' ')[0]}
+                      </span>
+                    </motion.button>
+                  );
+                })
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5 mb-4">
@@ -122,13 +248,13 @@ export default function TransferModal({ onClose }: Props) {
                 className="text-[#334154] font-medium text-sm"
                 style={{ fontFamily: 'var(--font-poppins)' }}
               >
-                Destinatario
+                Email del destinatario
               </label>
               <input
-                type="text"
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-                placeholder="Nombre o email del destinatario"
+                type="email"
+                value={recipientEmail}
+                onChange={(e) => handleEmailChange(e.target.value)}
+                placeholder="email@ejemplo.com"
                 className="w-full bg-[#f9fafc] rounded-xl px-4 py-3 text-sm text-[#334154] placeholder-[#aaa] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200"
                 style={{ fontFamily: 'var(--font-poppins)' }}
               />
@@ -157,12 +283,17 @@ export default function TransferModal({ onClose }: Props) {
               </div>
             </div>
 
+            {error && (
+              <p className="text-red-500 text-xs mb-3 text-center">{error}</p>
+            )}
+
             <motion.button
-              className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 disabled:opacity-50"
+              className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 disabled:opacity-50 cursor-pointer"
               style={{ fontFamily: 'var(--font-poppins)' }}
-              disabled={!recipient || !amount || Number(amount) <= 0}
+              disabled={!recipientEmail || !amount || Number(amount) <= 0 || !selectedCardId}
               whileTap={{ scale: 0.97 }}
               onClick={() => {
+                setError('');
                 setStep('confirm');
                 playTap();
               }}
@@ -190,13 +321,28 @@ export default function TransferModal({ onClose }: Props) {
                   className="text-[#aaa] text-sm"
                   style={{ fontFamily: 'var(--font-poppins)' }}
                 >
+                  Tarjeta
+                </span>
+                <span
+                  className="text-[#334154] text-sm font-medium text-right"
+                  style={{ fontFamily: 'var(--font-poppins)' }}
+                >
+                  {selectedCard ? `${selectedCard.issuer} **** ${selectedCard.lastDigits}` : '-'}
+                </span>
+              </div>
+              <div className="border-t border-[#e5e7eb]" />
+              <div className="flex justify-between">
+                <span
+                  className="text-[#aaa] text-sm"
+                  style={{ fontFamily: 'var(--font-poppins)' }}
+                >
                   Para
                 </span>
                 <span
-                  className="text-[#334154] text-sm font-medium"
+                  className="text-[#334154] text-sm font-medium text-right max-w-[200px] truncate"
                   style={{ fontFamily: 'var(--font-poppins)' }}
                 >
-                  {recipient}
+                  {recipientName || recipientEmail}
                 </span>
               </div>
               <div className="border-t border-[#e5e7eb]" />
@@ -216,20 +362,25 @@ export default function TransferModal({ onClose }: Props) {
               </div>
             </div>
 
+            {error && (
+              <p className="text-red-500 text-xs mb-3 text-center">{error}</p>
+            )}
+
             <div className="flex gap-3">
               <motion.button
-                className="flex-1 border-2 border-[#e5e7eb] text-[#616e7c] font-medium text-sm rounded-2xl py-3"
+                className="flex-1 border-2 border-[#e5e7eb] text-[#616e7c] font-medium text-sm rounded-2xl py-3 cursor-pointer"
                 style={{ fontFamily: 'var(--font-poppins)' }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => {
                   setStep('form');
+                  setError('');
                   playTap();
                 }}
               >
                 Volver
               </motion.button>
               <motion.button
-                className="flex-1 bg-[#005cee] text-white font-medium text-sm rounded-2xl py-3 disabled:opacity-70"
+                className="flex-1 bg-[#005cee] text-white font-medium text-sm rounded-2xl py-3 disabled:opacity-70 cursor-pointer"
                 style={{ fontFamily: 'var(--font-poppins)' }}
                 whileTap={{ scale: 0.97 }}
                 disabled={loading}
@@ -283,10 +434,10 @@ export default function TransferModal({ onClose }: Props) {
               className="text-[#aaa] text-sm text-center mb-6"
               style={{ fontFamily: 'var(--font-poppins)' }}
             >
-              Se transfirieron ${amount} a {recipient}
+              Se transfirieron ${amount} a {recipientName || recipientEmail}
             </p>
             <motion.button
-              className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4"
+              className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 cursor-pointer"
               style={{ fontFamily: 'var(--font-poppins)' }}
               whileTap={{ scale: 0.97 }}
               onClick={handleClose}

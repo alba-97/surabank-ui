@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, animate, type PanInfo } from 'framer-motion';
 import Image from 'next/image';
 import {
   getCards,
-  getLastMovements,
+  getMovements,
   type Card,
   type Transaction,
 } from '@/lib/api';
@@ -16,33 +16,61 @@ import CardComponent from '@/components/CardComponent';
 import TransactionItem from '@/components/TransactionItem';
 import TransferModal from '@/components/TransferModal';
 
+const PAGE_SIZE = 5;
+
 export default function HomePage() {
   const router = useRouter();
   const [cards, setCards] = useState<Card[]>([]);
   const [movements, setMovements] = useState<Transaction[]>([]);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [activeNav, setActiveNav] = useState<'home' | 'movements' | 'transfer'>(
-    'home',
-  );
+  const [activeNav, setActiveNav] = useState<'home' | 'transfer'>('home');
   const [showTransfer, setShowTransfer] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const initialLoadDone = useRef(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.replace('/login');
-      return;
-    }
+    if (!isAuthenticated()) { router.replace('/login'); return; }
     const token = getToken()!;
-    const userName = getName() ?? 'Usuario';
-    setName(userName.split(' ')[0]);
+    setName(getName()?.split(' ')[0] ?? 'Usuario');
 
-    Promise.all([getCards(token), getLastMovements(token)])
-      .then(([cardsRes, movRes]) => {
-        if (cardsRes.success) setCards(cardsRes.data);
-        if (movRes.success) setMovements(movRes.data);
-      })
-      .finally(() => setLoading(false));
+    Promise.all([
+      getCards(token),
+      getMovements(token, { pageNumber: 1 }),
+    ]).then(([cardsRes, movRes]) => {
+      if (cardsRes.success) setCards(cardsRes.data);
+      if (movRes.success) { setMovements(movRes.data); setTotal(movRes.total); }
+      initialLoadDone.current = true;
+    }).catch(() => {
+      clearSession();
+      router.replace('/login');
+    }).finally(() => setLoading(false));
   }, [router]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPage(1);
+      setDebouncedQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (!initialLoadDone.current) return;
+    const token = getToken()!;
+    getMovements(token, { search: debouncedQuery, pageNumber: page })
+      .then(res => {
+        if (res.success) { setMovements(res.data); setTotal(res.total); }
+      }).catch(() => {
+        clearSession();
+        router.replace('/login');
+      });
+  }, [debouncedQuery, page]);
 
   const handleLogout = () => {
     playTap();
@@ -50,11 +78,26 @@ export default function HomePage() {
     router.push('/login');
   };
 
-  const handleNavTap = (nav: 'home' | 'movements' | 'transfer') => {
+  const handleNavTap = (nav: 'home' | 'transfer') => {
     playTap();
     setActiveNav(nav);
     if (nav === 'transfer') setShowTransfer(true);
   };
+
+  const toggleSearch = () => {
+    playTap();
+    if (searchOpen) {
+      setSearchOpen(false);
+      setSearchQuery('');
+      setDebouncedQuery('');
+      setPage(1);
+    } else {
+      setSearchOpen(true);
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+  };
+
+  const isLastPage = page * PAGE_SIZE >= total;
 
   if (loading) {
     return (
@@ -65,10 +108,7 @@ export default function HomePage() {
           animate={{ opacity: 1 }}
         >
           <div className="w-12 h-12 border-3 border-[#005cee]/20 border-t-[#005cee] rounded-full animate-spin" />
-          <p
-            className="text-[#616e7c] text-sm"
-            style={{ fontFamily: 'var(--font-poppins)' }}
-          >
+          <p className="text-[#616e7c] text-sm" style={{ fontFamily: 'var(--font-poppins)' }}>
             Cargando...
           </p>
         </motion.div>
@@ -78,106 +118,185 @@ export default function HomePage() {
 
   return (
     <div className="mobile-container flex flex-col min-h-screen bg-white relative">
-      <motion.div
-        className="flex items-center justify-between px-6 pt-12 pb-4"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div>
-          <p
-            className="text-[#616e7c] text-base font-medium leading-tight"
-            style={{ fontFamily: 'var(--font-poppins)' }}
-          >
-            Hola
-          </p>
-          <h1
-            className="text-[#334154] text-[22px] font-semibold leading-tight"
-            style={{ fontFamily: 'var(--font-poppins)' }}
-          >
-            {name}
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between px-6 pt-12 pb-4 gap-3">
+        <AnimatePresence mode="wait">
+          {searchOpen ? (
+            <motion.div
+              key="search-input"
+              className="flex-1"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <input
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Buscar movimiento..."
+                className="w-full bg-[#f0f4ff] rounded-xl px-4 py-2.5 text-[#334154] outline-none text-sm"
+                style={{ fontFamily: 'var(--font-poppins)' }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="greeting"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p
+                className="text-[#616e7c] text-base font-medium leading-tight"
+                style={{ fontFamily: 'var(--font-poppins)' }}
+              >
+                Hola
+              </p>
+              <h1
+                className="text-[#334154] text-[22px] font-semibold leading-tight"
+                style={{ fontFamily: 'var(--font-poppins)' }}
+              >
+                {name}
+              </h1>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex items-center gap-3 shrink-0">
           <motion.button
-            className="w-10 h-10 flex items-center justify-center"
+            className="w-10 h-10 flex items-center justify-center cursor-pointer"
             whileTap={{ scale: 0.9 }}
-            onClick={() => playTap()}
+            onClick={toggleSearch}
           >
-            <Image src="/icons/glass.svg" width={19} height={19} alt="Buscar" />
+            <AnimatePresence mode="wait">
+              {searchOpen ? (
+                <motion.span
+                  key="close"
+                  initial={{ opacity: 0, rotate: -90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: 90 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="#334154" strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="glass"
+                  initial={{ opacity: 0, rotate: 90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  exit={{ opacity: 0, rotate: -90 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Image src="/icons/glass.svg" width={19} height={19} alt="Buscar" />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </motion.button>
-          <motion.button
-            className="w-10 h-10 flex items-center justify-center"
-            whileTap={{ scale: 0.9 }}
-            onClick={() => playTap()}
-          >
-            <Image
-              src="/icons/notifications.svg"
-              width={18}
-              height={21}
-              alt="Notificaciones"
-            />
-          </motion.button>
+          {!searchOpen && (
+            <motion.button
+              className="w-10 h-10 flex items-center justify-center cursor-pointer"
+              whileTap={{ scale: 0.9 }}
+              onClick={() => playTap()}
+            >
+              <Image src="/icons/notifications.svg" width={18} height={21} alt="Notificaciones" />
+            </motion.button>
+          )}
         </div>
-      </motion.div>
+      </div>
+
+      <AnimatePresence>
+        {!searchOpen && (
+          <motion.div
+            key="cards"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <CardCarousel cards={cards} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.div
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        layout
+        className="flex-1 px-6 pb-28"
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       >
-        <CardCarousel cards={cards} />
-      </motion.div>
-
-      <div className="flex-1 px-6 pb-28">
-        <motion.div
-          className="flex items-center justify-between mt-6 mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
+        <div className="flex items-center mt-6 mb-4">
           <h2
             className="text-[#334154] text-xl font-medium"
             style={{ fontFamily: 'var(--font-poppins)' }}
           >
-            Últimos movimientos
+            {searchOpen ? 'Resultados' : 'Últimos movimientos'}
           </h2>
-          <motion.button
-            className="text-[#005cee] p-1"
-            whileTap={{ scale: 0.9 }}
-            onClick={() => playTap()}
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </motion.button>
-        </motion.div>
+        </div>
 
         <div className="flex flex-col gap-3">
-          <AnimatePresence>
-            {movements.map((tx, i) => (
-              <motion.div
-                key={tx.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.07 }}
+          <AnimatePresence mode="popLayout">
+            {movements.length === 0 ? (
+              <motion.p
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-[#616e7c] text-sm text-center py-6"
+                style={{ fontFamily: 'var(--font-poppins)' }}
               >
-                <TransactionItem transaction={tx} />
-              </motion.div>
-            ))}
+                No se encontraron movimientos
+              </motion.p>
+            ) : (
+              movements.map((tx, i) => (
+                <motion.div
+                  key={tx.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ delay: i * 0.04 }}
+                >
+                  <TransactionItem transaction={tx} />
+                </motion.div>
+              ))
+            )}
           </AnimatePresence>
         </div>
-      </div>
+
+        {total > PAGE_SIZE && (
+          <motion.div
+            className="flex items-center justify-center gap-6 mt-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <motion.button
+              className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer ${page === 1 ? 'opacity-30' : 'bg-[#f0f4ff]'}`}
+              whileTap={page > 1 ? { scale: 0.9 } : {}}
+              onClick={() => { if (page > 1) { playTap(); setPage(p => p - 1); } }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18l-6-6 6-6" stroke="#334154" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </motion.button>
+
+            <span
+              className="text-[#334154] text-sm font-medium tabular-nums"
+              style={{ fontFamily: 'var(--font-poppins)' }}
+            >
+              {page} / {Math.ceil(total / PAGE_SIZE)}
+            </span>
+
+            <motion.button
+              className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer ${isLastPage ? 'opacity-30' : 'bg-[#f0f4ff]'}`}
+              whileTap={!isLastPage ? { scale: 0.9 } : {}}
+              onClick={() => { if (!isLastPage) { playTap(); setPage(p => p + 1); } }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18l6-6-6-6" stroke="#334154" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </motion.button>
+          </motion.div>
+        )}
+      </motion.div>
 
       <motion.div
         className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[414px] bg-white rounded-t-3xl shadow-[0_-8px_30px_0_rgba(0,0,0,0.06)] px-10 py-4 flex items-center justify-between"
@@ -186,7 +305,7 @@ export default function HomePage() {
         transition={{ duration: 0.5, delay: 0.4 }}
       >
         <motion.button
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 cursor-pointer"
           whileTap={{ scale: 0.85 }}
           onClick={() => handleNavTap('home')}
         >
@@ -194,7 +313,7 @@ export default function HomePage() {
         </motion.button>
 
         <motion.button
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 cursor-pointer"
           whileTap={{ scale: 0.85 }}
           onClick={() => handleNavTap('transfer')}
         >
@@ -208,17 +327,7 @@ export default function HomePage() {
         </motion.button>
 
         <motion.button
-          className="flex flex-col items-center gap-1"
-          whileTap={{ scale: 0.85 }}
-          onClick={() => handleNavTap('movements')}
-        >
-          <DocumentIcon
-            color={activeNav === 'movements' ? '#6c8ff8' : '#071529'}
-          />
-        </motion.button>
-
-        <motion.button
-          className="flex flex-col items-center gap-1"
+          className="flex flex-col items-center gap-1 cursor-pointer"
           whileTap={{ scale: 0.85 }}
           onClick={handleLogout}
         >
@@ -232,6 +341,17 @@ export default function HomePage() {
             onClose={() => {
               setShowTransfer(false);
               setActiveNav('home');
+            }}
+            onTransferSuccess={() => {
+              const token = getToken();
+              if (!token) return;
+              getCards(token).then(res => {
+                if (res.success) setCards(res.data);
+              });
+              getMovements(token, { pageNumber: 1 }).then(res => {
+                if (res.success) { setMovements(res.data); setTotal(res.total); }
+                initialLoadDone.current = true;
+              });
             }}
           />
         )}
@@ -252,13 +372,7 @@ function TransferIcon({ color }: { color: string }) {
 
 function HomeIcon({ color }: { color: string }) {
   return (
-    <svg
-      width="27"
-      height="29"
-      viewBox="0 0 27 29"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="27" height="29" viewBox="0 0 27 29" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -269,44 +383,9 @@ function HomeIcon({ color }: { color: string }) {
   );
 }
 
-function DocumentIcon({ color }: { color: string }) {
-  return (
-    <svg
-      width="27"
-      height="31"
-      viewBox="0 0 27 31"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M8.52568 23.6579H19.916C20.5398 23.6579 21.0454 23.1452 21.0454 22.5127C21.0454 21.8803 20.5398 21.3676 19.916 21.3676H8.5119C7.88815 21.3676 7.38251 21.8803 7.38251 22.5127C7.38251 23.1452 7.88815 23.6579 8.5119 23.6579H8.52568Z"
-        fill={color}
-      />
-      <path
-        d="M8.52536 16.9683H19.9157C20.3516 17.0171 20.7765 16.8087 21.0094 16.4321C21.2424 16.0554 21.2424 15.5769 21.0094 15.2002C20.7765 14.8236 20.3516 14.6153 19.9157 14.664H8.51159C7.93224 14.7288 7.49371 15.2251 7.49371 15.8162C7.49371 16.4072 7.93224 16.9035 8.51159 16.9683H8.52536Z"
-        fill={color}
-      />
-      <path
-        d="M8.52551 10.2788H12.864C13.4434 10.214 13.8819 9.71767 13.8819 9.12666C13.8819 8.53564 13.4434 8.03926 12.864 7.97449H8.52551C7.94615 8.03926 7.50763 8.53564 7.50763 9.12666C7.50763 9.71767 7.94615 10.214 8.52551 10.2788Z"
-        fill={color}
-      />
-      <path
-        d="M19.1997 0H7.67468C2.87475 0 0 2.91882 0 7.82776V22.2229C0 27.1185 2.87475 30.0506 7.67468 30.0506C8.22185 29.9891 8.63601 29.5175 8.63601 28.9561C8.63601 28.3946 8.22185 27.923 7.67468 27.8615C4.00644 27.8615 2.14631 25.9643 2.14631 22.2229V7.82776C2.14631 4.08636 4.00644 2.18912 7.67468 2.18912H19.1997C22.868 2.18912 24.7151 4.08636 24.7151 7.82776V22.2229C24.7151 25.9643 22.868 27.8615 19.1997 27.8615H14.9461C14.399 27.923 13.9848 28.3946 13.9848 28.9561C13.9848 29.5175 14.399 29.9891 14.9461 30.0506H19.2127C24.0257 30.0506 26.8874 27.1185 26.8874 22.2229V7.82776C26.8744 2.93209 23.9996 0 19.1997 0Z"
-        fill={color}
-      />
-    </svg>
-  );
-}
-
 function LogoutIcon({ color }: { color: string }) {
   return (
-    <svg
-      width="28"
-      height="27"
-      viewBox="0 0 28 27"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="28" height="27" viewBox="0 0 28 27" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M17.3915 18.0952C17.9607 18.0952 18.4227 18.5458 18.4227 19.101V20.3302C18.4227 23.5255 15.7578 26.125 12.4809 26.125H5.95386C2.6716 26.125 0 23.5189 0 20.3159C0 19.7607 0.462006 19.3113 1.03114 19.3113C1.60028 19.3113 2.06229 19.7607 2.06229 20.3159C2.06229 22.4112 3.80854 24.1133 5.95386 24.1133H12.4809C14.6208 24.1133 16.3604 22.4164 16.3604 20.3302V19.101C16.3604 18.5458 16.8224 18.0952 17.3915 18.0952ZM26.4685 12.0556C26.8864 12.0556 27.2627 12.3012 27.422 12.6787C27.5814 13.0549 27.4917 13.4886 27.197 13.776L23.284 17.576C23.0818 17.7707 22.8194 17.87 22.5556 17.87C22.2917 17.87 22.0266 17.7707 21.8257 17.5734C21.424 17.1789 21.424 16.5427 21.8284 16.1509L23.9724 14.0686H10.38C9.81087 14.0686 9.34753 13.6179 9.34753 13.0628C9.34753 12.5076 9.81087 12.0556 10.38 12.0556H26.4685ZM12.4677 0C15.7513 0 18.4229 2.60607 18.4229 5.80913V7.02529C18.4229 7.57916 17.9609 8.02984 17.3918 8.02984C16.8227 8.02984 16.3607 7.57916 16.3607 7.02529V5.80913C16.3607 3.71382 14.6144 2.01171 12.4677 2.01171H5.94207C3.80211 2.01171 2.06256 3.7099 2.06256 5.79476V15.7422C2.06256 16.2974 1.60055 16.7481 1.03141 16.7481C0.462274 16.7481 0.00026783 16.2974 0.00026783 15.7422V5.79476C0.00026783 2.59954 2.66517 0 5.94207 0H12.4677ZM21.823 8.55615C22.2248 8.15903 22.8756 8.15642 23.2814 8.54831L24.267 9.4993C24.6727 9.89119 24.6754 10.5274 24.275 10.9219C24.0728 11.1204 23.8077 11.221 23.5425 11.221C23.28 11.221 23.0176 11.123 22.8167 10.9297L21.8297 9.9774C21.4253 9.58682 21.4226 8.94935 21.823 8.55615Z"
         fill={color}
@@ -315,7 +394,7 @@ function LogoutIcon({ color }: { color: string }) {
   );
 }
 
-const CARD_STRIDE = 320 + 16; // card width + gap
+const CARD_STRIDE = 320 + 16;
 
 function CardCarousel({ cards }: { cards: Card[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -340,8 +419,7 @@ function CardCarousel({ cards }: { cards: Card[] }) {
   };
 
   return (
-    /* py-3 / -my-3: da 12px de espacio vertical para el scale en hover sin afectar el layout */
-    <div className='overflow-hidden py-3 -my-3'>
+    <div className='overflow-x-clip py-3 -my-3'>
       <div className='pl-6 cursor-grab active:cursor-grabbing'>
         <motion.div
           className='flex gap-4 select-none'

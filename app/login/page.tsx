@@ -238,7 +238,7 @@ export default function LoginPage() {
         <motion.button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 shadow-[0_8px_30px_0_rgba(0,92,238,0.3)] disabled:opacity-70 transition-all duration-200"
+          className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 shadow-[0_8px_30px_0_rgba(0,92,238,0.3)] disabled:opacity-70 transition-all duration-200 cursor-pointer"
           style={{ fontFamily: 'var(--font-poppins)' }}
           whileTap={{ scale: 0.97 }}
           whileHover={{
