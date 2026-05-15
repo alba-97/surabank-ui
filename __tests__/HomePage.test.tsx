@@ -12,6 +12,7 @@ jest.mock('@/services/api', () => ({
   getCards: jest.fn(),
   getMovements: jest.fn(),
   getAccount: jest.fn(),
+  getNotifications: jest.fn(),
 }));
 
 jest.mock('@/services/auth', () => ({
@@ -28,7 +29,7 @@ jest.mock('@/services/sounds', () => ({
   initSounds: jest.fn(),
 }));
 
-const { getCards, getMovements, getAccount } =
+const { getCards, getMovements, getAccount, getNotifications } =
   jest.requireMock('@/services/api');
 
 const mockCards = [
@@ -85,10 +86,16 @@ beforeEach(() => {
     total: mockMovements.length,
   });
   getAccount.mockResolvedValue({ success: true, data: { balance: '978.85' } });
+  getNotifications.mockResolvedValue({ success: true, data: [] });
 });
 
 describe('HomePage', () => {
   it('shows loading state initially', () => {
+    const pending = new Promise(() => {});
+    getCards.mockReturnValue(pending);
+    getMovements.mockReturnValue(pending);
+    getAccount.mockReturnValue(pending);
+    getNotifications.mockReturnValue(pending);
     render(<HomePage />);
     expect(
       screen.getByRole('status', { name: 'Cargando' }),

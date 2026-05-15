@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import TransactionItem from '@/components/TransactionItem';
 import type { Transaction } from '@/interfaces';
 
@@ -52,5 +52,12 @@ describe('TransactionItem', () => {
       />,
     );
     expect(screen.getByText('Pago enviado')).toBeInTheDocument();
+  });
+
+  it('calls playTap on click', () => {
+    const { playTap } = jest.requireMock('@/services/sounds');
+    render(<TransactionItem transaction={makeTx()} />);
+    fireEvent.click(screen.getByText('Adobe').closest('div')!);
+    expect(playTap).toHaveBeenCalled();
   });
 });

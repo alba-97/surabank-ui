@@ -1,4 +1,15 @@
-import { login, getCards, getMovements } from '@/services/api';
+import {
+  login,
+  getCards,
+  getMovements,
+  getAccount,
+  getContacts,
+  getNotifications,
+  markNotificationsRead,
+  transferMoney,
+  createCard,
+  internalTransfer,
+} from '@/services/api';
 import axios from 'axios';
 
 jest.mock('axios', () => {
@@ -132,5 +143,130 @@ describe('getMovements()', () => {
       '/surabank/movements',
       expect.objectContaining({ params: { search: 'Adobe', pageNumber: 2 } }),
     );
+  });
+});
+
+describe('getAccount()', () => {
+  it('returns account balance', async () => {
+    getInstance().get.mockResolvedValueOnce({
+      data: { success: true, data: { balance: '500.00' } },
+    });
+
+    const res = await getAccount('tok');
+
+    expect(getInstance().get).toHaveBeenCalledWith(
+      '/surabank/account',
+      expect.objectContaining({ headers: { Authorization: 'tok' } }),
+    );
+    expect(res.data.balance).toBe('500.00');
+  });
+});
+
+describe('getContacts()', () => {
+  it('returns contact list', async () => {
+    getInstance().get.mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: [{ id: 2, name: 'Camila', email: 'c@test.com' }],
+      },
+    });
+
+    const res = await getContacts('tok');
+
+    expect(getInstance().get).toHaveBeenCalledWith(
+      '/surabank/contacts',
+      expect.objectContaining({ headers: { Authorization: 'tok' } }),
+    );
+    expect(res.data).toHaveLength(1);
+  });
+});
+
+describe('getNotifications()', () => {
+  it('returns notification list', async () => {
+    getInstance().get.mockResolvedValueOnce({
+      data: { success: true, data: [] },
+    });
+
+    const res = await getNotifications('tok');
+
+    expect(getInstance().get).toHaveBeenCalledWith(
+      '/surabank/notifications',
+      expect.objectContaining({ headers: { Authorization: 'tok' } }),
+    );
+    expect(res.success).toBe(true);
+  });
+});
+
+describe('markNotificationsRead()', () => {
+  it('sends PATCH request', async () => {
+    getInstance().patch = jest.fn().mockResolvedValueOnce({});
+
+    await markNotificationsRead('tok');
+
+    expect(getInstance().patch).toHaveBeenCalledWith(
+      '/surabank/notifications/read-all',
+      {},
+      expect.objectContaining({ headers: { Authorization: 'tok' } }),
+    );
+  });
+});
+
+describe('transferMoney()', () => {
+  it('sends transfer POST request', async () => {
+    getInstance().post.mockResolvedValueOnce({
+      data: { success: true, data: { newBalance: '400.00' } },
+    });
+
+    const res = await transferMoney('tok', 'camila@test.com', 100, 1);
+
+    expect(getInstance().post).toHaveBeenCalledWith(
+      '/surabank/transfer',
+      { email: 'camila@test.com', amount: 100, cardId: 1 },
+      expect.objectContaining({ headers: { Authorization: 'tok' } }),
+    );
+    expect(res.success).toBe(true);
+  });
+});
+
+describe('createCard()', () => {
+  it('sends create card POST request', async () => {
+    getInstance().post.mockResolvedValueOnce({
+      data: { success: true, data: { id: 3, issuer: 'Visa' } },
+    });
+
+    const res = await createCard('tok', 'Visa');
+
+    expect(getInstance().post).toHaveBeenCalledWith(
+      '/surabank/cards',
+      { issuer: 'Visa' },
+      expect.objectContaining({ headers: { Authorization: 'tok' } }),
+    );
+    expect(res.success).toBe(true);
+  });
+});
+
+describe('internalTransfer()', () => {
+  it('sends internal transfer POST request', async () => {
+    getInstance().post.mockResolvedValueOnce({
+      data: { success: true, message: 'Transfer successful' },
+    });
+
+    const res = await internalTransfer('tok', {
+      fromType: 'account',
+      toType: 'card',
+      toId: 1,
+      amount: 50,
+    });
+
+    expect(getInstance().post).toHaveBeenCalledWith(
+      '/surabank/cards/transfer',
+      expect.objectContaining({
+        fromType: 'account',
+        toType: 'card',
+        amount: 50,
+      }),
+      expect.objectContaining({ headers: { Authorization: 'tok' } }),
+    );
+    expect(res.success).toBe(true);
   });
 });
