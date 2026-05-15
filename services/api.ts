@@ -1,52 +1,9 @@
+import { Card, Contact, LoginResponse, MovementsResponse, Notification, TransferResponse } from '@/interfaces';
 import axios from 'axios';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000',
 });
-
-export interface Card {
-  id: number;
-  issuer: string;
-  name: string;
-  expDate: string;
-  lastDigits: number;
-  balance: string;
-  currency: string;
-}
-
-export interface Transaction {
-  id: number;
-  title: string;
-  amount: string;
-  transactionType: 'SUS' | 'CASH_IN' | 'CASH_OUT';
-  date: string;
-}
-
-export interface LoginResponse {
-  success: boolean;
-  data: { name: string; token: string };
-}
-
-export interface MovementsResponse {
-  success: boolean;
-  data: Transaction[];
-  total: number;
-}
-
-export interface Contact {
-  id: number;
-  email: string;
-  name: string;
-}
-
-export interface TransferResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    newBalance: string;
-    cardId: number;
-  };
-}
 
 export async function login(
   email: string,
@@ -142,4 +99,20 @@ export async function getMovements(
     params,
   });
   return data;
+}
+
+export async function getNotifications(
+  token: string,
+): Promise<{ success: boolean; data: Notification[] }> {
+  const { data } = await api.get<{ success: boolean; data: Notification[] }>(
+    '/surabank/notifications',
+    { headers: { Authorization: token } },
+  );
+  return data;
+}
+
+export async function markNotificationsRead(token: string): Promise<void> {
+  await api.patch('/surabank/notifications/read-all', {}, {
+    headers: { Authorization: token },
+  });
 }

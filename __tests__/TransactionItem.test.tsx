@@ -1,9 +1,9 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import TransactionItem from '@/components/TransactionItem';
-import type { Transaction } from '@/lib/api';
+import type { Transaction } from '@/interfaces';
 
-jest.mock('@/lib/sounds', () => ({
+jest.mock('@/services/sounds', () => ({
   playTap: jest.fn(),
   playSuccess: jest.fn(),
   playError: jest.fn(),

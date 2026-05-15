@@ -40,10 +40,10 @@ export default function TransferSuccess({
           <path d="M20 6L9 17l-5-5" />
         </svg>
       </motion.div>
-      <h2 className="text-[#334154] text-xl font-semibold mb-2">
+      <h2 className="text-[#334154] dark:text-[#f3f4f6] text-xl font-semibold mb-2">
         ¡Transferencia exitosa!
       </h2>
-      <p className="text-[#aaa] text-sm text-center mb-6">
+      <p className="text-[#aaa] dark:text-[#9ca3af] text-sm text-center mb-6">
         Se transfirieron ${amount} a {recipientName || recipientEmail}
       </p>
       <motion.button

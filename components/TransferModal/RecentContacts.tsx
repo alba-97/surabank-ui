@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import type { Contact } from '@/lib/api';
+import type { Contact } from '@/interfaces';
+import Spinner from '@/components/Spinner';
 
 const colorPairs = [
   { bg: '#e4fff0', text: '#74cc9b' },
@@ -35,13 +36,10 @@ export default function RecentContacts({
 }: RecentContactsProps) {
   return (
     <>
-      <p className="text-[#aaa] text-xs mb-3">Contactos recientes</p>
+      <p className="text-[#aaa] dark:text-[#6b7280] text-xs mb-3">Contactos recientes</p>
       <div className="flex gap-3 mb-5 overflow-x-auto scrollbar-hide pb-1">
         {loading ? (
-          <div className="flex items-center gap-2 py-3">
-            <div className="w-4 h-4 border-2 border-[#005cee]/20 border-t-[#005cee] rounded-full animate-spin" />
-            <span className="text-[#aaa] text-xs">Cargando...</span>
-          </div>
+          <Spinner />
         ) : contacts.length === 0 ? (
           <span className="text-[#aaa] text-xs py-3">
             No hay contactos disponibles
@@ -67,7 +65,7 @@ export default function RecentContacts({
                 >
                   {getInitials(c.name)}
                 </div>
-                <span className="text-[#616e7c] text-[10px] whitespace-nowrap">
+                <span className="text-[#616e7c] dark:text-[#9ca3af] text-[10px] whitespace-nowrap">
                   {c.name.split(' ')[0]}
                 </span>
               </motion.button>

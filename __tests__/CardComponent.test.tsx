@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import CardComponent from '@/components/CardComponent';
-import type { Card } from '@/lib/api';
+import type { Card } from '@/interfaces';
 
 const makeCard = (overrides: Partial<Card> = {}): Card => ({
   id: 1,

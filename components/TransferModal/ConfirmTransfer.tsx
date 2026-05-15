@@ -1,8 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { playTap } from '@/lib/sounds';
-import type { Card } from '@/lib/api';
+import { playTap } from '@/services/sounds';
+import type { Card } from '@/interfaces';
+import Spinner from '@/components/Spinner';
 
 interface ConfirmTransferProps {
   selectedCard: Card | undefined;
@@ -27,30 +28,30 @@ export default function ConfirmTransfer({
 }: ConfirmTransferProps) {
   return (
     <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }}>
-      <h2 className="text-[#334154] text-xl font-semibold mb-6">
+      <h2 className="text-[#334154] dark:text-[#f3f4f6] text-xl font-semibold mb-6">
         Confirmar transferencia
       </h2>
 
-      <div className="bg-[#f9fafc] rounded-2xl p-5 mb-6 flex flex-col gap-4">
+      <div className="bg-[#f9fafc] dark:bg-[#374151] rounded-2xl p-5 mb-6 flex flex-col gap-4">
         <div className="flex justify-between">
-          <span className="text-[#aaa] text-sm">Tarjeta</span>
-          <span className="text-[#334154] text-sm font-medium text-right">
+          <span className="text-[#aaa] dark:text-[#9ca3af] text-sm">Tarjeta</span>
+          <span className="text-[#334154] dark:text-[#f3f4f6] text-sm font-medium text-right">
             {selectedCard
               ? `${selectedCard.issuer} **** ${selectedCard.lastDigits}`
               : '-'}
           </span>
         </div>
-        <div className="border-t border-[#e5e7eb]" />
+        <div className="border-t border-[#e5e7eb] dark:border-[#4b5563]" />
         <div className="flex justify-between">
-          <span className="text-[#aaa] text-sm">Para</span>
-          <span className="text-[#334154] text-sm font-medium text-right max-w-[200px] truncate">
+          <span className="text-[#aaa] dark:text-[#9ca3af] text-sm">Para</span>
+          <span className="text-[#334154] dark:text-[#f3f4f6] text-sm font-medium text-right max-w-[200px] truncate">
             {recipientName || recipientEmail}
           </span>
         </div>
-        <div className="border-t border-[#e5e7eb]" />
+        <div className="border-t border-[#e5e7eb] dark:border-[#4b5563]" />
         <div className="flex justify-between">
-          <span className="text-[#aaa] text-sm">Monto</span>
-          <span className="text-[#334154] text-lg font-semibold">
+          <span className="text-[#aaa] dark:text-[#9ca3af] text-sm">Monto</span>
+          <span className="text-[#334154] dark:text-[#f3f4f6] text-lg font-semibold">
             ${amount}
           </span>
         </div>
@@ -62,7 +63,7 @@ export default function ConfirmTransfer({
 
       <div className="flex gap-3">
         <motion.button
-          className="flex-1 border-2 border-[#e5e7eb] text-[#616e7c] font-medium text-sm rounded-2xl py-3 cursor-pointer"
+          className="flex-1 border-2 border-[#e5e7eb] dark:border-[#4b5563] text-[#616e7c] dark:text-[#9ca3af] font-medium text-sm rounded-2xl py-3 cursor-pointer"
           whileTap={{ scale: 0.97 }}
           onClick={() => {
             onBack();
@@ -78,10 +79,7 @@ export default function ConfirmTransfer({
           onClick={onConfirm}
         >
           {loading ? (
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              Enviando...
-            </div>
+            <Spinner />
           ) : (
             'Confirmar'
           )}

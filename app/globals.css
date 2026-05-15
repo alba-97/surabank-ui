@@ -4,6 +4,8 @@
   --font-poppins: var(--font-poppins);
 }
 
+@variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 :root {
   --primary: #005cee;
   --bg: #f9fafc;
@@ -18,6 +20,11 @@
 
 html {
   background-color: #dbdbdb;
+}
+
+html[data-theme="dark"] {
+  background-color: #0f172a;
+  --bg: #111827;
 }
 
 body {

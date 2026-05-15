@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Poppins, Inter } from 'next/font/google';
 import './globals.css';
+import { ThemeProvider } from '@/contexts/theme';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -34,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${poppins.variable} ${inter.variable}`}>
       <body className="min-h-screen" suppressHydrationWarning>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

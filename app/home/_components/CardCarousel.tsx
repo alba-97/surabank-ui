@@ -1,5 +1,5 @@
 import CardComponent from '@/components/CardComponent';
-import { Card } from '@/lib/api';
+import { Card } from '@/interfaces';
 import { motion, useMotionValue, animate, type PanInfo } from 'framer-motion';
 import { useState } from 'react';
 

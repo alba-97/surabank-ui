@@ -7,17 +7,18 @@ import {
   getCards,
   getMovements,
   getAccount,
-  type Card,
-  type Transaction,
-} from '@/lib/api';
-import { getToken, getName, clearSession, isAuthenticated } from '@/lib/auth';
-import { playTap } from '@/lib/sounds';
+  getNotifications,
+} from '@/services/api';
+import { getToken, getName, clearSession, isAuthenticated } from '@/services/auth';
+import { playTap } from '@/services/sounds';
 import TransferModal from '@/components/TransferModal';
 import Navbar from '@/components/Navbar';
 import Movements from './_components/Movements';
 import CardCarousel from './_components/CardCarousel';
 import Header from './_components/Header';
 import Spinner from '@/components/Spinner';
+import ThemeToggle from '@/components/ThemeToggle';
+import { Card, Notification, Transaction } from '@/interfaces';
 
 const PAGE_SIZE = 5;
 
@@ -35,6 +36,7 @@ export default function HomePage() {
   const [total, setTotal] = useState(0);
   const [accountBalance, setAccountBalance] = useState('0.00');
   const [balancesVisible, setBalancesVisible] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const initialLoadDone = useRef(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -48,10 +50,11 @@ export default function HomePage() {
 
     const load = async () => {
       try {
-        const [cardsRes, movRes, accountRes] = await Promise.all([
+        const [cardsRes, movRes, accountRes, notifRes] = await Promise.all([
           getCards(token),
           getMovements(token, { pageNumber: 1 }),
           getAccount(token),
+          getNotifications(token),
         ]);
         if (cardsRes.success) setCards(cardsRes.data);
         if (movRes.success) {
@@ -59,6 +62,7 @@ export default function HomePage() {
           setTotal(movRes.total);
         }
         if (accountRes.success) setAccountBalance(accountRes.data.balance);
+        if (notifRes.success) setNotifications(notifRes.data);
         initialLoadDone.current = true;
       } catch {
         clearSession();
@@ -115,7 +119,8 @@ export default function HomePage() {
   if (loading) return <Spinner />;
 
   return (
-    <div className="mobile-container flex flex-col min-h-screen bg-white relative">
+    <div className="mobile-container flex flex-col min-h-screen bg-white dark:bg-[#111827] relative">
+      <ThemeToggle />
       <Header
         name={name}
         accountBalance={accountBalance}
@@ -126,6 +131,10 @@ export default function HomePage() {
         onSearchChange={setSearchQuery}
         onToggleSearch={toggleSearch}
         searchInputRef={searchInputRef}
+        notifications={notifications}
+        onNotificationsRead={() =>
+          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+        }
       />
 
       <AnimatePresence>

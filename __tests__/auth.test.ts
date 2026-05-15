@@ -4,7 +4,7 @@ import {
   getName,
   clearSession,
   isAuthenticated,
-} from '@/lib/auth';
+} from '@/services/auth';
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};

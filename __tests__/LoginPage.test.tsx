@@ -8,23 +8,23 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace }),
 }));
 
-jest.mock('@/lib/api', () => ({
+jest.mock('@/services/api', () => ({
   login: jest.fn(),
 }));
 
-jest.mock('@/lib/auth', () => ({
+jest.mock('@/services/auth', () => ({
   saveSession: jest.fn(),
   isAuthenticated: jest.fn().mockReturnValue(false),
 }));
 
-jest.mock('@/lib/sounds', () => ({
+jest.mock('@/services/sounds', () => ({
   playTap: jest.fn(),
   playSuccess: jest.fn(),
   playError: jest.fn(),
   initSounds: jest.fn(),
 }));
 
-const { login: mockLogin } = jest.requireMock('@/lib/api');
+const { login: mockLogin } = jest.requireMock('@/services/api');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -109,7 +109,7 @@ describe('LoginPage', () => {
   });
 
   it('redirects to home if already authenticated', () => {
-    const { isAuthenticated } = jest.requireMock('@/lib/auth');
+    const { isAuthenticated } = jest.requireMock('@/services/auth');
     isAuthenticated.mockReturnValueOnce(true);
 
     render(<LoginPage />);

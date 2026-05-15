@@ -16,7 +16,7 @@ export default function EmailAndAmount({
   return (
     <>
       <div className="flex flex-col gap-1.5 mb-4">
-        <label className="text-[#334154] font-medium text-sm">
+        <label className="text-[#334154] dark:text-[#f3f4f6] font-medium text-sm">
           Email del destinatario
         </label>
         <input
@@ -24,16 +24,16 @@ export default function EmailAndAmount({
           value={recipientEmail}
           onChange={(e) => onEmailChange(e.target.value)}
           placeholder="email@ejemplo.com"
-          className="w-full bg-[#f9fafc] rounded-xl px-4 py-3 text-sm text-[#334154] placeholder-[#aaa] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200"
+          className="w-full bg-[#f9fafc] dark:bg-[#374151] rounded-xl px-4 py-3 text-sm text-[#334154] dark:text-[#f3f4f6] placeholder-[#aaa] dark:placeholder-[#6b7280] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200"
         />
       </div>
 
       <div className="flex flex-col gap-1.5 mb-6">
-        <label className="text-[#334154] font-medium text-sm">
+        <label className="text-[#334154] dark:text-[#f3f4f6] font-medium text-sm">
           Monto (USD)
         </label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#aaa] text-sm">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#aaa] dark:text-[#6b7280] text-sm">
             $
           </span>
           <input
@@ -42,7 +42,7 @@ export default function EmailAndAmount({
             onChange={(e) => onAmountChange(e.target.value)}
             placeholder="0.00"
             min="0"
-            className="w-full bg-[#f9fafc] rounded-xl px-4 py-3 pl-8 text-sm text-[#334154] placeholder-[#aaa] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200"
+            className="w-full bg-[#f9fafc] dark:bg-[#374151] rounded-xl px-4 py-3 pl-8 text-sm text-[#334154] dark:text-[#f3f4f6] placeholder-[#aaa] dark:placeholder-[#6b7280] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200"
           />
         </div>
       </div>

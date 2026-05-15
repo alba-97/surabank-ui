@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import type { Card } from '@/lib/api';
+import type { Card } from '@/interfaces';
 
 const CARD_COLORS: Record<string, { bg: string; secondary: string }> = {
   Mastercard: { bg: 'from-[#005cee] to-[#0041b0]', secondary: '#1a6ff5' },

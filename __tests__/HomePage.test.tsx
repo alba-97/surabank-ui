@@ -8,26 +8,27 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace }),
 }));
 
-jest.mock('@/lib/api', () => ({
+jest.mock('@/services/api', () => ({
   getCards: jest.fn(),
   getMovements: jest.fn(),
+  getAccount: jest.fn(),
 }));
 
-jest.mock('@/lib/auth', () => ({
+jest.mock('@/services/auth', () => ({
   getToken: jest.fn().mockReturnValue('test-token'),
   getName: jest.fn().mockReturnValue('Carlos Sura'),
   clearSession: jest.fn(),
   isAuthenticated: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock('@/lib/sounds', () => ({
+jest.mock('@/services/sounds', () => ({
   playTap: jest.fn(),
   playSuccess: jest.fn(),
   playError: jest.fn(),
   initSounds: jest.fn(),
 }));
 
-const { getCards, getMovements } = jest.requireMock('@/lib/api');
+const { getCards, getMovements, getAccount } = jest.requireMock('@/services/api');
 
 const mockCards = [
   {
@@ -82,12 +83,13 @@ beforeEach(() => {
     data: mockMovements,
     total: mockMovements.length,
   });
+  getAccount.mockResolvedValue({ success: true, data: { balance: '978.85' } });
 });
 
 describe('HomePage', () => {
   it('shows loading state initially', () => {
     render(<HomePage />);
-    expect(screen.getByText('Cargando...')).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'Cargando' })).toBeInTheDocument();
   });
 
   it('renders greeting after load', async () => {
@@ -113,7 +115,7 @@ describe('HomePage', () => {
   });
 
   it('redirects to login if not authenticated', () => {
-    const { isAuthenticated } = jest.requireMock('@/lib/auth');
+    const { isAuthenticated } = jest.requireMock('@/services/auth');
     isAuthenticated.mockReturnValueOnce(false);
 
     render(<HomePage />);

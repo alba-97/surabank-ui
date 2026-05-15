@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import type { Card } from '@/lib/api';
+import type { Card } from '@/interfaces';
 
 interface NewCardProps {
   cards: Card[];
@@ -15,11 +15,11 @@ export default function NewCard({ cards, creating, onCreate }: NewCardProps) {
 
   return (
     <section>
-      <h2 className="text-[#334154] text-base font-semibold mb-1">
+      <h2 className="text-[#334154] dark:text-[#f3f4f6] text-base font-semibold mb-1">
         Nueva tarjeta
       </h2>
       {atLimit && (
-        <p className="text-[#616e7c] text-xs mb-3">
+        <p className="text-[#616e7c] dark:text-[#9ca3af] text-xs mb-3">
           Límite de 6 tarjetas alcanzado
         </p>
       )}
@@ -49,7 +49,7 @@ export default function NewCard({ cards, creating, onCreate }: NewCardProps) {
         ))}
       </div>
       {cards.length > 0 && (
-        <p className="text-[#616e7c] text-xs mt-2">
+        <p className="text-[#616e7c] dark:text-[#9ca3af] text-xs mt-2">
           {cards.length} / 6 tarjetas
         </p>
       )}

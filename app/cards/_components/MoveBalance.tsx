@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import type { Card } from '@/lib/api';
+import type { Card } from '@/interfaces';
 
 type Source =
   | { type: 'account'; label: string; balance: string }
@@ -57,19 +57,19 @@ export default function MoveBalance({
 
   return (
     <section>
-      <h2 className="text-[#334154] text-base font-semibold mb-4">
+      <h2 className="text-[#334154] dark:text-[#f3f4f6] text-base font-semibold mb-4">
         Mover saldo
       </h2>
       <div className="flex flex-col gap-3">
         <div>
-          <label className="text-[#616e7c] text-xs mb-1 block">Desde</label>
+          <label className="text-[#616e7c] dark:text-[#9ca3af] text-xs mb-1 block">Desde</label>
           <select
             value={fromKey}
             onChange={(e) => {
               onFromChange(e.target.value);
               onToChange('');
             }}
-            className="w-full bg-[#f0f4ff] rounded-xl px-4 py-3 text-[#334154] text-sm outline-none cursor-pointer"
+            className="w-full bg-[#f0f4ff] dark:bg-[#1e293b] rounded-xl px-4 py-3 text-[#334154] dark:text-[#f3f4f6] text-sm outline-none cursor-pointer"
           >
             {sources.map((s) => (
               <option
@@ -83,11 +83,11 @@ export default function MoveBalance({
         </div>
 
         <div>
-          <label className="text-[#616e7c] text-xs mb-1 block">Hacia</label>
+          <label className="text-[#616e7c] dark:text-[#9ca3af] text-xs mb-1 block">Hacia</label>
           <select
             value={toKey}
             onChange={(e) => onToChange(e.target.value)}
-            className="w-full bg-[#f0f4ff] rounded-xl px-4 py-3 text-[#334154] text-sm outline-none cursor-pointer"
+            className="w-full bg-[#f0f4ff] dark:bg-[#1e293b] rounded-xl px-4 py-3 text-[#334154] dark:text-[#f3f4f6] text-sm outline-none cursor-pointer"
           >
             <option value="">Seleccionar destino</option>
             {dests.map((s) => (
@@ -102,7 +102,7 @@ export default function MoveBalance({
         </div>
 
         <div>
-          <label className="text-[#616e7c] text-xs mb-1 block">Monto</label>
+          <label className="text-[#616e7c] dark:text-[#9ca3af] text-xs mb-1 block">Monto</label>
           <input
             type="number"
             min="0.01"
@@ -110,7 +110,7 @@ export default function MoveBalance({
             value={amount}
             onChange={(e) => onAmountChange(e.target.value)}
             placeholder="0.00"
-            className="w-full bg-[#f0f4ff] rounded-xl px-4 py-3 text-[#334154] text-sm outline-none"
+            className="w-full bg-[#f0f4ff] dark:bg-[#1e293b] rounded-xl px-4 py-3 text-[#334154] dark:text-[#f3f4f6] text-sm outline-none"
           />
         </div>
 

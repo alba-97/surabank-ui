@@ -1,4 +1,4 @@
-import { login, getCards, getMovements } from '@/lib/api';
+import { login, getCards, getMovements } from '@/services/api';
 import axios from 'axios';
 
 jest.mock('axios', () => {

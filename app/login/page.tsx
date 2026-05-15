@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { login } from '@/lib/api';
-import { saveSession, isAuthenticated } from '@/lib/auth';
-import { playTap, playSuccess, playError } from '@/lib/sounds';
+import { login } from '@/services/api';
+import { saveSession, isAuthenticated } from '@/services/auth';
+import { playTap, playSuccess, playError } from '@/services/sounds';
+import Spinner from '@/components/Spinner';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,24 +35,26 @@ export default function LoginPage() {
         saveSession(res.data.token, res.data.name, remember);
         playSuccess();
         router.push('/home');
-      } else {
-        playError();
-        setError('Credenciales inválidas. Intenta de nuevo.');
-        setShake(true);
-        setTimeout(() => setShake(false), 600);
+        return;
       }
+      playError();
+      setError('Credenciales inválidas. Intenta de nuevo.');
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
     } catch {
       playError();
       setError('Error de conexión. Intenta de nuevo.');
       setShake(true);
       setTimeout(() => setShake(false), 600);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
+  if (loading) return <Spinner />
+
   return (
-    <div className="mobile-container flex flex-col min-h-screen bg-[#f9fafc]">
+    <div className="mobile-container flex flex-col min-h-screen bg-[#f9fafc] dark:bg-[#111827]">
+      <ThemeToggle />
       <div className="absolute top-0 right-0 w-48 h-48 bg-[#005cee]/5 rounded-full -translate-y-16 translate-x-16 pointer-events-none" />
       <div className="absolute top-32 left-0 w-32 h-32 bg-[#005cee]/3 rounded-full -translate-x-16 pointer-events-none" />
 
@@ -70,7 +74,7 @@ export default function LoginPage() {
             Surabank
           </motion.h1>
           <motion.p
-            className="text-[#717e95] text-base"
+            className="text-[#717e95] dark:text-[#9ca3af] text-base"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -89,7 +93,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="flex flex-col gap-2">
-            <label className="text-[#334154] font-medium text-base">
+            <label className="text-[#334154] dark:text-[#f3f4f6] font-medium text-base">
               Email
             </label>
             <motion.div whileTap={{ scale: 0.99 }}>
@@ -99,13 +103,13 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Ingresa tu email"
                 required
-                className="w-full bg-white rounded-xl px-4 py-4 text-sm text-[#334154] placeholder-[#aaa] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
+                className="w-full bg-white dark:bg-[#1f2937] rounded-xl px-4 py-4 text-sm text-[#334154] dark:text-[#f3f4f6] placeholder-[#aaa] dark:placeholder-[#6b7280] outline-none border-2 border-transparent dark:border-[#374151] focus:border-[#005cee] transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
               />
             </motion.div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[#334154] font-medium text-base">
+            <label className="text-[#334154] dark:text-[#f3f4f6] font-medium text-base">
               Contraseña
             </label>
             <motion.div className="relative" whileTap={{ scale: 0.99 }}>
@@ -115,7 +119,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Ingresa tu contraseña"
                 required
-                className="w-full bg-white rounded-xl px-4 py-4 pr-12 text-sm text-[#334154] placeholder-[#aaa] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
+                className="w-full bg-white dark:bg-[#1f2937] rounded-xl px-4 py-4 pr-12 text-sm text-[#334154] dark:text-[#f3f4f6] placeholder-[#aaa] dark:placeholder-[#6b7280] outline-none border-2 border-transparent dark:border-[#374151] focus:border-[#005cee] transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
               />
               <button
                 type="button"
@@ -175,7 +179,7 @@ export default function LoginPage() {
               className={`w-[18px] h-[18px] rounded-sm border-2 flex items-center justify-center transition-all duration-200 ${
                 remember
                   ? 'bg-[#005cee] border-[#005cee]'
-                  : 'bg-white border-[#ccc]'
+                  : 'bg-white border-[#ccc] dark:bg-[#1f2937] dark:border-[#374151]'
               }`}
             >
               <AnimatePresence>
@@ -200,7 +204,7 @@ export default function LoginPage() {
                 )}
               </AnimatePresence>
             </div>
-            <span className="text-[#aaa] text-sm">Recordarme</span>
+            <span className="text-[#aaa] dark:text-[#6b7280] text-sm">Recordarme</span>
           </motion.label>
 
           <AnimatePresence>
@@ -229,20 +233,8 @@ export default function LoginPage() {
             boxShadow: '0 12px 40px 0 rgba(0,92,238,0.4)',
           }}
         >
-          {loading ? (
-            <motion.div
-              className="flex items-center justify-center gap-2"
-              animate={{ opacity: [1, 0.6, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-            >
-              <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              Ingresando...
-            </motion.div>
-          ) : (
-            'Ingresar'
-          )}
+          Ingresar
         </motion.button>
-
         <div className="flex justify-center mt-6">
           <div className="w-[120px] h-1 bg-[#c4c4c4]/30 rounded-full" />
         </div>

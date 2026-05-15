@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { clearSession } from '@/lib/auth';
-import { playTap } from '@/lib/sounds';
+import { clearSession } from '@/services/auth';
+import { playTap } from '@/services/sounds';
+import { useTheme } from '@/contexts/theme';
 
 interface NavbarProps {
   active?: 'home' | 'card';
@@ -12,6 +13,8 @@ interface NavbarProps {
 
 export default function Navbar({ active, onTransfer }: NavbarProps) {
   const router = useRouter();
+  const { dark } = useTheme();
+  const iconColor = dark ? '#e2e8f0' : '#071529';
 
   const handleLogout = () => {
     playTap();
@@ -21,7 +24,7 @@ export default function Navbar({ active, onTransfer }: NavbarProps) {
 
   return (
     <motion.div
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[414px] bg-white rounded-t-3xl shadow-[0_-8px_30px_0_rgba(0,0,0,0.06)] px-10 py-4 flex items-center justify-between"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[414px] bg-white dark:bg-[#1f2937] rounded-t-3xl shadow-[0_-8px_30px_0_rgba(0,0,0,0.06)] dark:shadow-[0_-8px_30px_0_rgba(0,0,0,0.4)] px-10 py-4 flex items-center justify-between"
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
@@ -34,7 +37,7 @@ export default function Navbar({ active, onTransfer }: NavbarProps) {
           router.push('/home');
         }}
       >
-        <HomeIcon color={active === 'home' ? '#6c8ff8' : '#071529'} />
+        <HomeIcon color={active === 'home' ? '#6c8ff8' : iconColor} />
       </motion.button>
 
       <motion.button
@@ -45,7 +48,7 @@ export default function Navbar({ active, onTransfer }: NavbarProps) {
           onTransfer?.();
         }}
       >
-        <TransferIcon color="#071529" />
+        <TransferIcon color={iconColor} />
       </motion.button>
 
       <motion.button
@@ -56,7 +59,7 @@ export default function Navbar({ active, onTransfer }: NavbarProps) {
           router.push('/cards');
         }}
       >
-        <CardIcon color={active === 'card' ? '#6c8ff8' : '#071529'} />
+        <CardIcon color={active === 'card' ? '#6c8ff8' : iconColor} />
       </motion.button>
 
       <motion.button
@@ -64,7 +67,7 @@ export default function Navbar({ active, onTransfer }: NavbarProps) {
         whileTap={{ scale: 0.85 }}
         onClick={handleLogout}
       >
-        <LogoutIcon color="#071529" />
+        <LogoutIcon color={iconColor} />
       </motion.button>
     </motion.div>
   );

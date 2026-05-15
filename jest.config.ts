@@ -11,10 +11,10 @@ const config: Config = {
   },
   collectCoverageFrom: [
     'app/**/*.{ts,tsx}',
-    'lib/**/*.{ts,tsx}',
+    'services/**/*.{ts,tsx}',
     'components/**/*.{ts,tsx}',
     '!app/layout.tsx',
-    '!lib/sounds.ts',
+    '!services/sounds.ts',
     '!**/*.d.ts',
   ],
 };

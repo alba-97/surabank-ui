@@ -1,8 +1,8 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Transaction } from '@/lib/api';
-import { playTap } from '@/lib/sounds';
+import type { Transaction } from '@/interfaces';
+import { playTap } from '@/services/sounds';
 import TransactionItem from '@/components/TransactionItem';
 
 interface MovementsProps {
@@ -33,7 +33,7 @@ export default function Movements({
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
     >
       <div className="flex items-center mt-6 mb-4">
-        <h2 className="text-[#334154] text-xl font-medium">
+        <h2 className="text-[#334154] dark:text-[#f3f4f6] text-xl font-medium">
           {searchOpen ? 'Resultados' : 'Últimos movimientos'}
         </h2>
       </div>
@@ -45,7 +45,7 @@ export default function Movements({
               key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-[#616e7c] text-sm text-center py-6"
+              className="text-[#616e7c] dark:text-[#9ca3af] text-sm text-center py-6"
             >
               No se encontraron movimientos
             </motion.p>
@@ -72,7 +72,7 @@ export default function Movements({
           animate={{ opacity: 1 }}
         >
           <motion.button
-            className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer ${page === 1 ? 'opacity-30' : 'bg-[#f0f4ff]'}`}
+            className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer text-[#334154] dark:text-[#f3f4f6] ${page === 1 ? 'opacity-30' : 'bg-[#f0f4ff] dark:bg-[#1e293b]'}`}
             whileTap={page > 1 ? { scale: 0.9 } : {}}
             onClick={() => {
               if (page > 1) {
@@ -84,7 +84,7 @@ export default function Movements({
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path
                 d="M15 18l-6-6 6-6"
-                stroke="#334154"
+                stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -92,12 +92,12 @@ export default function Movements({
             </svg>
           </motion.button>
 
-          <span className="text-[#334154] text-sm font-medium tabular-nums">
+          <span className="text-[#334154] dark:text-[#f3f4f6] text-sm font-medium tabular-nums">
             {page} / {Math.ceil(total / pageSize)}
           </span>
 
           <motion.button
-            className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer ${isLastPage ? 'opacity-30' : 'bg-[#f0f4ff]'}`}
+            className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer text-[#334154] dark:text-[#f3f4f6] ${isLastPage ? 'opacity-30' : 'bg-[#f0f4ff] dark:bg-[#1e293b]'}`}
             whileTap={!isLastPage ? { scale: 0.9 } : {}}
             onClick={() => {
               if (!isLastPage) {
@@ -109,7 +109,7 @@ export default function Movements({
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path
                 d="M9 18l6-6-6-6"
-                stroke="#334154"
+                stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

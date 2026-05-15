@@ -1,9 +1,13 @@
 'use client';
 
-import { type RefObject } from 'react';
+import { type RefObject, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { playTap } from '@/lib/sounds';
+import { playTap } from '@/services/sounds';
+import { markNotificationsRead } from '@/services/api';
+import { getToken } from '@/services/auth';
+import NotificationsPanel from '@/components/NotificationsPanel';
+import type { Notification } from '@/interfaces';
 
 interface HeaderProps {
   name: string;
@@ -15,6 +19,8 @@ interface HeaderProps {
   onSearchChange: (value: string) => void;
   onToggleSearch: () => void;
   searchInputRef: RefObject<HTMLInputElement | null>;
+  notifications?: Notification[];
+  onNotificationsRead?: () => void;
 }
 
 export default function Header({
@@ -27,7 +33,24 @@ export default function Header({
   onSearchChange,
   onToggleSearch,
   searchInputRef,
+  notifications = [],
+  onNotificationsRead,
 }: HeaderProps) {
+  const [panelOpen, setPanelOpen] = useState(false);
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleBellClick = async () => {
+    playTap();
+    if (!panelOpen && unreadCount > 0) {
+      const token = getToken();
+      if (token) {
+        await markNotificationsRead(token);
+        onNotificationsRead?.();
+      }
+    }
+    setPanelOpen((v) => !v);
+  };
+
   return (
     <div className="flex items-center justify-between px-6 pt-12 pb-4 gap-3">
       <AnimatePresence mode="wait">
@@ -45,7 +68,7 @@ export default function Header({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Buscar movimiento..."
-              className="w-full bg-[#f0f4ff] rounded-xl px-4 py-2.5 text-[#334154] outline-none text-sm"
+              className="w-full bg-[#f0f4ff] dark:bg-[#1e293b] rounded-xl px-4 py-2.5 text-[#334154] dark:text-[#f3f4f6] outline-none text-sm"
             />
           </motion.div>
         ) : (
@@ -56,15 +79,15 @@ export default function Header({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <p className="text-[#616e7c] text-base font-medium leading-tight">
+            <p className="text-[#616e7c] dark:text-[#9ca3af] text-base font-medium leading-tight">
               Hola
             </p>
-            <h1 className="text-[#334154] text-[22px] font-semibold leading-tight">
+            <h1 className="text-[#334154] dark:text-[#f3f4f6] text-[22px] font-semibold leading-tight">
               {name}
             </h1>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[#616e7c] text-xs">Saldo</span>
-              <span className="text-[#334154] text-xs font-semibold">
+              <span className="text-[#616e7c] dark:text-[#9ca3af] text-xs">Saldo</span>
+              <span className="text-[#334154] dark:text-[#f3f4f6] text-xs font-semibold">
                 {balancesVisible ? `$${accountBalance}` : '• • •'}
               </span>
               <button
@@ -116,7 +139,7 @@ export default function Header({
 
       <div className="flex items-center gap-3 shrink-0">
         <motion.button
-          className="w-10 h-10 flex items-center justify-center cursor-pointer"
+          className="w-10 h-10 flex items-center justify-center cursor-pointer text-[#334154] dark:text-[#f3f4f6]"
           whileTap={{ scale: 0.9 }}
           onClick={onToggleSearch}
         >
@@ -132,7 +155,7 @@ export default function Header({
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M18 6L6 18M6 6l12 12"
-                    stroke="#334154"
+                    stroke="currentColor"
                     strokeWidth="2.5"
                     strokeLinecap="round"
                   />
@@ -157,18 +180,34 @@ export default function Header({
           </AnimatePresence>
         </motion.button>
         {!searchOpen && (
-          <motion.button
-            className="w-10 h-10 flex items-center justify-center cursor-pointer"
-            whileTap={{ scale: 0.9 }}
-            onClick={() => playTap()}
-          >
-            <Image
-              src="/icons/notifications.svg"
-              width={18}
-              height={21}
-              alt="Notificaciones"
-            />
-          </motion.button>
+          <div className="relative">
+            <motion.button
+              className="w-10 h-10 flex items-center justify-center cursor-pointer"
+              whileTap={{ scale: 0.9 }}
+              onClick={handleBellClick}
+            >
+              <Image
+                src="/icons/notifications.svg"
+                width={18}
+                height={21}
+                alt="Notificaciones"
+              />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#005cee] rounded-full text-white text-[9px] font-semibold flex items-center justify-center leading-none">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </motion.button>
+
+            <AnimatePresence>
+              {panelOpen && (
+                <NotificationsPanel
+                  notifications={notifications}
+                  onClose={() => setPanelOpen(false)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
         )}
       </div>
     </div>
