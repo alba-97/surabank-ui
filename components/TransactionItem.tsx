@@ -51,23 +51,17 @@ export default function TransactionItem({
       </motion.div>
 
       <div className="flex-1 min-w-0">
-        <p
-          className="text-[#616e7c] text-base font-medium truncate"
-          style={{ fontFamily: 'var(--font-poppins)' }}
-        >
+        <p className="text-[#616e7c] text-base font-medium truncate">
           {transaction.title}
         </p>
-        <p
-          className="text-[#aaa] text-xs mt-0.5"
-          style={{ fontFamily: 'var(--font-poppins)' }}
-        >
+        <p className="text-[#aaa] text-xs mt-0.5">
           {TX_LABEL[transaction.transactionType] ?? transaction.transactionType}
         </p>
       </div>
 
       <p
         className="text-sm font-medium flex-shrink-0"
-        style={{ color: config.amountColor, fontFamily: 'var(--font-poppins)' }}
+        style={{ color: config.amountColor }}
       >
         {transaction.transactionType === 'CASH_OUT' ? '' : '+'}
         {transaction.amount}

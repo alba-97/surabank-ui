@@ -1,26 +1,35 @@
 const TOKEN_KEY = 'surabank_token';
 const NAME_KEY = 'surabank_name';
 
-export function saveSession(token: string, name: string) {
+function storage(): Storage {
+  if (typeof window === 'undefined')
+    return { getItem: () => null } as unknown as Storage;
+  return localStorage.getItem(TOKEN_KEY) !== null
+    ? localStorage
+    : sessionStorage;
+}
+
+export function saveSession(token: string, name: string, remember: boolean) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(NAME_KEY, name);
+  const store = remember ? localStorage : sessionStorage;
+  store.setItem(TOKEN_KEY, token);
+  store.setItem(NAME_KEY, name);
 }
 
 export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
+  return storage().getItem(TOKEN_KEY);
 }
 
 export function getName(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(NAME_KEY);
+  return storage().getItem(NAME_KEY);
 }
 
 export function clearSession() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(NAME_KEY);
+  sessionStorage.removeItem(NAME_KEY);
 }
 
 export function isAuthenticated(): boolean {

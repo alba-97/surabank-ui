@@ -28,13 +28,13 @@ beforeEach(() => localStorageMock.clear());
 
 describe('auth utilities', () => {
   it('saves and retrieves session', () => {
-    saveSession('tok123', 'Carlos Sura');
+    saveSession('tok123', 'Carlos Sura', true);
     expect(getToken()).toBe('tok123');
     expect(getName()).toBe('Carlos Sura');
   });
 
   it('isAuthenticated returns true when token exists', () => {
-    saveSession('tok', 'User');
+    saveSession('tok', 'User', true);
     expect(isAuthenticated()).toBe(true);
   });
 
@@ -43,7 +43,7 @@ describe('auth utilities', () => {
   });
 
   it('clearSession removes token and name', () => {
-    saveSession('tok', 'User');
+    saveSession('tok', 'User', true);
     clearSession();
     expect(getToken()).toBeNull();
     expect(getName()).toBeNull();

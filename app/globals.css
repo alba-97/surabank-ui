@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+@theme inline {
+  --font-poppins: var(--font-poppins);
+}
+
 :root {
   --primary: #005cee;
   --bg: #f9fafc;
@@ -24,13 +28,20 @@ body {
 }
 
 .mobile-container {
-  max-width: 414px;
+  width: 100%;
   min-height: 100dvh;
   margin: 0 auto;
   background-color: var(--bg);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+}
+
+@media (min-width: 641px) {
+  .mobile-container {
+    max-width: 414px;
+    min-height: 100dvh;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+  }
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -39,4 +50,25 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 99px;
 }

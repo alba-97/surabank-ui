@@ -93,6 +93,46 @@ export async function getCards(
   return data;
 }
 
+export async function getAccount(
+  token: string,
+): Promise<{ success: boolean; data: { balance: string } }> {
+  const { data } = await api.get<{
+    success: boolean;
+    data: { balance: string };
+  }>('/surabank/account', { headers: { Authorization: token } });
+  return data;
+}
+
+export async function createCard(
+  token: string,
+  issuer: 'Visa' | 'Mastercard',
+): Promise<{ success: boolean; data: Card; message?: string }> {
+  const { data } = await api.post<{
+    success: boolean;
+    data: Card;
+    message?: string;
+  }>('/surabank/cards', { issuer }, { headers: { Authorization: token } });
+  return data;
+}
+
+export async function internalTransfer(
+  token: string,
+  params: {
+    fromType: 'card' | 'account';
+    fromId?: number;
+    toType: 'card' | 'account';
+    toId?: number;
+    amount: number;
+  },
+): Promise<{ success: boolean; message: string }> {
+  const { data } = await api.post<{ success: boolean; message: string }>(
+    '/surabank/cards/transfer',
+    params,
+    { headers: { Authorization: token } },
+  );
+  return data;
+}
+
 export async function getMovements(
   token: string,
   params?: { search?: string; pageNumber?: number },
@@ -103,4 +143,3 @@ export async function getMovements(
   });
   return data;
 }
-

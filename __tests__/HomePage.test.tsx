@@ -77,7 +77,11 @@ const mockMovements = [
 beforeEach(() => {
   jest.clearAllMocks();
   getCards.mockResolvedValue({ success: true, data: mockCards });
-  getMovements.mockResolvedValue({ success: true, data: mockMovements, total: mockMovements.length });
+  getMovements.mockResolvedValue({
+    success: true,
+    data: mockMovements,
+    total: mockMovements.length,
+  });
 });
 
 describe('HomePage', () => {

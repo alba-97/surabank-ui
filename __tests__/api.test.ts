@@ -9,7 +9,10 @@ jest.mock('axios', () => {
       response: { use: jest.fn() },
     },
   };
-  return { create: jest.fn(() => mockAxiosInstance), default: { create: jest.fn(() => mockAxiosInstance) } };
+  return {
+    create: jest.fn(() => mockAxiosInstance),
+    default: { create: jest.fn(() => mockAxiosInstance) },
+  };
 });
 
 const getInstance = () => (axios.create as jest.Mock).mock.results[0].value;
@@ -28,10 +31,10 @@ describe('login()', () => {
 
     const res = await login('user@test.com', 'pass');
 
-    expect(getInstance().post).toHaveBeenCalledWith(
-      '/surabank/login',
-      { email: 'user@test.com', password: 'pass' },
-    );
+    expect(getInstance().post).toHaveBeenCalledWith('/surabank/login', {
+      email: 'user@test.com',
+      password: 'pass',
+    });
     expect(res.success).toBe(true);
     expect(res.data.token).toBe('abc');
   });
@@ -46,7 +49,9 @@ describe('login()', () => {
 
 describe('getCards()', () => {
   it('sends Authorization header', async () => {
-    getInstance().get.mockResolvedValueOnce({ data: { success: true, data: [] } });
+    getInstance().get.mockResolvedValueOnce({
+      data: { success: true, data: [] },
+    });
 
     await getCards('my-token');
 
@@ -60,7 +65,17 @@ describe('getCards()', () => {
     getInstance().get.mockResolvedValueOnce({
       data: {
         success: true,
-        data: [{ id: 1, issuer: 'Mastercard', name: 'Test', expDate: '01/30', lastDigits: 1234, balance: '100', currency: 'USD' }],
+        data: [
+          {
+            id: 1,
+            issuer: 'Mastercard',
+            name: 'Test',
+            expDate: '01/30',
+            lastDigits: 1234,
+            balance: '100',
+            currency: 'USD',
+          },
+        ],
       },
     });
 
@@ -72,7 +87,9 @@ describe('getCards()', () => {
 
 describe('getMovements()', () => {
   it('sends Authorization header and hits /surabank/movements', async () => {
-    getInstance().get.mockResolvedValueOnce({ data: { success: true, data: [], total: 0 } });
+    getInstance().get.mockResolvedValueOnce({
+      data: { success: true, data: [], total: 0 },
+    });
 
     await getMovements('tok');
 
@@ -87,7 +104,15 @@ describe('getMovements()', () => {
       data: {
         success: true,
         total: 1,
-        data: [{ id: 1, title: 'Adobe', amount: '$125', transactionType: 'SUS', date: '2026-05-10' }],
+        data: [
+          {
+            id: 1,
+            title: 'Adobe',
+            amount: '$125',
+            transactionType: 'SUS',
+            date: '2026-05-10',
+          },
+        ],
       },
     });
 
@@ -97,7 +122,9 @@ describe('getMovements()', () => {
   });
 
   it('passes search and pageNumber as query params', async () => {
-    getInstance().get.mockResolvedValueOnce({ data: { success: true, data: [], total: 0 } });
+    getInstance().get.mockResolvedValueOnce({
+      data: { success: true, data: [], total: 0 },
+    });
 
     await getMovements('tok', { search: 'Adobe', pageNumber: 2 });
 

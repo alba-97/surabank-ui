@@ -28,56 +28,42 @@ function VisaLogo() {
 export default function CardComponent({
   card,
   index,
+  balanceVisible = true,
 }: {
   card: Card;
   index: number;
+  balanceVisible?: boolean;
 }) {
   const colors = CARD_COLORS[card.issuer] ?? CARD_COLORS.default;
   const isFirst = index === 0;
 
   return (
     <motion.div
-      className={`relative bg-gradient-to-br ${colors.bg} rounded-3xl overflow-hidden shadow-[0_8px_30px_0_rgba(0,0,0,0.15)]`}
-      style={{ width: 320, height: 185 }}
+      className={`relative bg-gradient-to-br ${colors.bg} rounded-3xl overflow-hidden shadow-[0_8px_30px_0_rgba(0,0,0,0.15)] w-[320px] h-[185px]`}
       initial={{ opacity: 0, x: 40 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      whileHover={{ scale: 1.02, rotate: isFirst ? -0.5 : 0.5 }}
+      whileHover={{ rotate: isFirst ? -1 : 1 }}
       whileTap={{ scale: 0.98 }}
     >
-      <div
-        className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-10"
-        style={{ background: 'white' }}
-      />
-      <div
-        className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full opacity-10"
-        style={{ background: 'white' }}
-      />
+      <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-10 bg-white" />
+      <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full opacity-10 bg-white" />
 
       <div className="relative flex flex-col justify-between h-full p-5">
         <div className="flex items-start justify-between">
           <div>
-            <p
-              className="text-white/70 text-xs mb-1"
-              style={{ fontFamily: 'var(--font-poppins)' }}
-            >
-              Balance
-            </p>
+            <p className="text-white/70 text-xs mb-1">Balance</p>
             <div className="flex items-center gap-2">
-              <span
-                className="bg-white/20 text-white text-xs font-medium px-2 py-0.5 rounded-md"
-                style={{ fontFamily: 'var(--font-poppins)' }}
-              >
+              <span className="bg-white/20 text-white text-xs font-medium px-2 py-0.5 rounded-md">
                 {card.currency}
               </span>
               <motion.span
                 className="text-white text-2xl font-semibold"
-                style={{ fontFamily: 'var(--font-poppins)' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
               >
-                {card.balance}
+                {balanceVisible ? card.balance : '• • •'}
               </motion.span>
             </div>
           </div>
@@ -86,42 +72,20 @@ export default function CardComponent({
 
         <div className="flex items-center gap-3">
           {['•••• ', '•••• ', '•••• '].map((dots, i) => (
-            <span
-              key={i}
-              className="text-white/80 text-base tracking-widest"
-              style={{ fontFamily: 'var(--font-poppins)' }}
-            >
+            <span key={i} className="text-white/80 text-base tracking-widest">
               {dots}
             </span>
           ))}
-          <span
-            className="text-white text-base font-medium tracking-wider"
-            style={{ fontFamily: 'var(--font-poppins)' }}
-          >
+          <span className="text-white text-base font-medium tracking-wider">
             {card.lastDigits}
           </span>
         </div>
 
         <div className="flex items-end justify-between">
-          <p
-            className="text-white text-sm"
-            style={{ fontFamily: 'var(--font-poppins)' }}
-          >
-            {card.name}
-          </p>
+          <p className="text-white text-sm">{card.name}</p>
           <div className="text-right">
-            <p
-              className="text-white/60 text-[10px]"
-              style={{ fontFamily: 'var(--font-poppins)' }}
-            >
-              Exp. Date
-            </p>
-            <p
-              className="text-white text-xs font-medium"
-              style={{ fontFamily: 'var(--font-poppins)' }}
-            >
-              {card.expDate}
-            </p>
+            <p className="text-white/60 text-[10px]">Exp. Date</p>
+            <p className="text-white text-xs font-medium">{card.expDate}</p>
           </div>
         </div>
       </div>

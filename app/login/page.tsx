@@ -30,7 +30,7 @@ export default function LoginPage() {
     try {
       const res = await login(email, password);
       if (res.success) {
-        saveSession(res.data.token, res.data.name);
+        saveSession(res.data.token, res.data.name, remember);
         playSuccess();
         router.push('/home');
       } else {
@@ -63,7 +63,6 @@ export default function LoginPage() {
         >
           <motion.h1
             className="text-[40px] font-semibold text-[#005cee] tracking-tight leading-none mb-3"
-            style={{ fontFamily: 'var(--font-poppins)' }}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -72,7 +71,6 @@ export default function LoginPage() {
           </motion.h1>
           <motion.p
             className="text-[#717e95] text-base"
-            style={{ fontFamily: 'var(--font-poppins)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -91,10 +89,7 @@ export default function LoginPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="flex flex-col gap-2">
-            <label
-              className="text-[#334154] font-medium text-base"
-              style={{ fontFamily: 'var(--font-poppins)' }}
-            >
+            <label className="text-[#334154] font-medium text-base">
               Email
             </label>
             <motion.div whileTap={{ scale: 0.99 }}>
@@ -105,16 +100,12 @@ export default function LoginPage() {
                 placeholder="Ingresa tu email"
                 required
                 className="w-full bg-white rounded-xl px-4 py-4 text-sm text-[#334154] placeholder-[#aaa] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
-                style={{ fontFamily: 'var(--font-poppins)' }}
               />
             </motion.div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label
-              className="text-[#334154] font-medium text-base"
-              style={{ fontFamily: 'var(--font-poppins)' }}
-            >
+            <label className="text-[#334154] font-medium text-base">
               Contraseña
             </label>
             <motion.div className="relative" whileTap={{ scale: 0.99 }}>
@@ -125,7 +116,6 @@ export default function LoginPage() {
                 placeholder="Ingresa tu contraseña"
                 required
                 className="w-full bg-white rounded-xl px-4 py-4 pr-12 text-sm text-[#334154] placeholder-[#aaa] outline-none border-2 border-transparent focus:border-[#005cee] transition-all duration-200 shadow-[0_8px_30px_0_rgba(0,0,0,0.06)]"
-                style={{ fontFamily: 'var(--font-poppins)' }}
               />
               <button
                 type="button"
@@ -210,12 +200,7 @@ export default function LoginPage() {
                 )}
               </AnimatePresence>
             </div>
-            <span
-              className="text-[#aaa] text-sm"
-              style={{ fontFamily: 'var(--font-poppins)' }}
-            >
-              Recordarme
-            </span>
+            <span className="text-[#aaa] text-sm">Recordarme</span>
           </motion.label>
 
           <AnimatePresence>
@@ -225,7 +210,6 @@ export default function LoginPage() {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 className="text-red-500 text-sm text-center bg-red-50 rounded-xl py-3 px-4"
-                style={{ fontFamily: 'var(--font-poppins)' }}
               >
                 {error}
               </motion.div>
@@ -239,7 +223,6 @@ export default function LoginPage() {
           onClick={handleSubmit}
           disabled={loading}
           className="w-full bg-[#005cee] text-white font-semibold text-base rounded-2xl py-4 shadow-[0_8px_30px_0_rgba(0,92,238,0.3)] disabled:opacity-70 transition-all duration-200 cursor-pointer"
-          style={{ fontFamily: 'var(--font-poppins)' }}
           whileTap={{ scale: 0.97 }}
           whileHover={{
             scale: 1.01,
