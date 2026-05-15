@@ -17,6 +17,14 @@ const config: Config = {
     '!services/sounds.ts',
     '!**/*.d.ts',
   ],
+  coverageThreshold: {
+    global: {
+      lines: 70,
+      branches: 70,
+      functions: 70,
+      statements: 70,
+    },
+  },
 };
 
 export default createJestConfig(config);
