@@ -16,11 +16,18 @@ export async function login(
   email: string,
   password: string,
 ): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>('/surabank/login', {
-    email,
-    password,
-  });
-  return data;
+  try {
+    const { data } = await api.post<LoginResponse>('/surabank/login', {
+      email,
+      password,
+    });
+    return data;
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.data) {
+      return err.response.data as LoginResponse;
+    }
+    throw err;
+  }
 }
 
 export async function getContacts(

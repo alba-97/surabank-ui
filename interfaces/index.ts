@@ -20,7 +20,8 @@ export interface Transaction {
 
 export interface LoginResponse {
   success: boolean;
-  data: { name: string; token: string };
+  data?: { name: string; token: string };
+  message?: string;
 }
 
 export interface MovementsResponse {

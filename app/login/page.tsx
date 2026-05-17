@@ -33,12 +33,12 @@ export default function LoginPage() {
     try {
       const res = await login(email, password);
       if (res.success) {
-        saveSession(res.data.token, res.data.name, remember);
+        saveSession(res.data?.token ?? '', res.data?.name ?? '', remember);
         router.push('/home');
         return;
       }
       playError();
-      setError('Credenciales inválidas. Intenta de nuevo.');
+      setError(res.message ?? 'Credenciales inválidas. Intenta de nuevo.');
       setShake(true);
       setTimeout(() => setShake(false), 600);
     } catch {
