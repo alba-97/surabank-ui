@@ -36,6 +36,10 @@ export default function CardsPage() {
   } | null>(null);
   const [showTransfer, setShowTransfer] = useState(false);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const loadData = async (token: string) => {
     const [cardsRes, accRes] = await Promise.all([
       getCards(token),
@@ -116,9 +120,11 @@ export default function CardsPage() {
         setAmount('');
         playSuccess();
         setFeedback({ type: 'success', text: 'Transferencia exitosa' });
+        scrollToTop();
       } else {
         playError();
         setFeedback({ type: 'error', text: res.message });
+        scrollToTop();
       }
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
@@ -127,6 +133,7 @@ export default function CardsPage() {
         type: 'error',
         text: axiosErr?.response?.data?.message ?? 'Error al transferir',
       });
+      scrollToTop();
     } finally {
       setTransferring(false);
       setTimeout(() => setFeedback(null), 3000);

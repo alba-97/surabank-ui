@@ -108,6 +108,13 @@ export default function HomePage() {
     fetch();
   }, [debouncedQuery, page, router]);
 
+  useEffect(() => {
+    if (!searchOpen) return;
+    requestAnimationFrame(() => {
+      searchInputRef.current?.focus();
+    });
+  }, [searchOpen]);
+
   const toggleSearch = () => {
     playTap();
     if (searchOpen) {
@@ -117,7 +124,6 @@ export default function HomePage() {
       setPage(1);
     } else {
       setSearchOpen(true);
-      setTimeout(() => searchInputRef.current?.focus(), 50);
     }
   };
 

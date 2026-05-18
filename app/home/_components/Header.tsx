@@ -65,6 +65,7 @@ export default function Header({
           >
             <input
               ref={searchInputRef}
+              autoFocus
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Buscar movimiento..."
